@@ -1,6 +1,5 @@
 from classes import Employee, Hourly, Commissioned, PointCard, Syindicate
 
-s = Syindicate(100,  1)
 
 
 def sindicato():
@@ -153,5 +152,5 @@ def main():
         elif n == 4:
             sindicato()
 
-
+s = Syindicate(100,  1)
 main()
