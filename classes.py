@@ -16,6 +16,7 @@ class Employee:
         self.payment = None
         self.salary_h = salary_h
         self.card = None
+        self.aditional_taxes = 0
         employees.append(self)
 
 
@@ -153,18 +154,25 @@ class Sales:
 
 
 class Syindicate:
-    def __init__(self, employee_id, taxes = 0, aditional_taxes = 0):
-        self.employee_id = employee_id
+    def __init__(self, taxes = 0, syndicate_id = 1):
+        self.syndicate_id = syndicate_id
         self.taxes = taxes
-        self.aditional_taxes = aditional_taxes
 
-    def plus_aditional_taxes(self, a_taxes):
-        self.aditional_taxes += a_taxes
+    def change_general_taxes(self, new_g_tax):
+        self.taxes = new_g_tax
 
-    def sign_syindicate(self, employee_id, taxes, aditional_taxes = 0):
-        self.employee_id = employee_id
-        self.taxes = taxes
-        self.aditional_taxes = aditional_taxes
+
+    @staticmethod
+    def sign_syindicate(employee_id, aditional_taxes = 0):
+        employee = Employee.get_employee_byid(employee_id)
+        employee.aditional_taxes = aditional_taxes
+        employee.issyndicate = True
+
+    @staticmethod
+    def plus_aditional_taxes(employee_id, aditional_taxes):
+        employee = Employee.get_employee_byid(employee_id)
+        employee.aditional_taxes += aditional_taxes
+
 
 
 

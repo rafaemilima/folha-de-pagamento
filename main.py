@@ -1,8 +1,23 @@
 from classes import Employee, Hourly, Commissioned, PointCard, Syindicate
 
+s = Syindicate(100,  1)
+
 
 def sindicato():
-    pass
+    while True:
+        n = int(input("1 - Definir taxa sindical geral\n2 - Definir taxa sindical adicional\n0 - Retornar"))
+        if n == 0:
+            return
+        elif n == 1:
+            taxa_geral = float(input("Informe o valor que deseja adicionar para a taxa geral: "))
+            s.change_general_taxes(taxa_geral)
+            print(s.taxes)
+
+        elif n == 2:
+            identificador = input("Informe o identificador do funcionário: ")
+            taxa_ad = float(input("Informe a taxa adicional de serviço: "))
+            s.plus_aditional_taxes(identificador, taxa_ad)
+
 
 
 def adicionar_func():
