@@ -1,28 +1,43 @@
 from random import randint
 
-employees = []
+
+class Company:
+    def __init__(self):
+        self.employees = []
 
 
 class Employee:
-    def __init__(self, name = None, address = None, jobtype = None, salary = 0, issyndicate = False, comission = None,
-                 salary_h = None):
-        self.id = self.define_id()
+    def __init__(self, company, name = None, address = None, jobtype = None, salary = 0, issyndicate = False,
+                 comission = None, salary_h = None, id = None):
+
+        if id:
+            self.id = id
+        else:
+            self.id = self.defineID(company)
+
         self.name = name
         self.address = address
         self.jobtype = jobtype
         self.salary = salary
-        self.issyndicate = issyndicate
         self.comission = comission
         self.payment = None
         self.salary_h = salary_h
         self.card = None
         self.aditional_taxes = 0
-        employees.append(self)
+        if issyndicate == "y":
+            self.issyndicate = True
+        else:
+            self.issyndicate = False
+        company.employees.append(self)
 
 
 
-    def add_employee(self, name, address, jobtype, salary, issyndicate, salary_h, comission):
-        self.id = self.define_id()
+    def add_employee(self, company, name, address, jobtype, salary, issyndicate, salary_h, comission, id = None):
+        if self.id:
+            self.id = id
+        else:
+            self.id = self.defineID(company)
+
         self.name = name
         self.address = address
         self.jobtype = jobtype
@@ -30,18 +45,20 @@ class Employee:
         self.issyndicate = issyndicate
         self.salary_h = salary_h
         self.comission = comission
-        employees.append(self)
+        company.employees.append(self)
 
     def info(self):
         print("###################################")
-        print(self.id)
-        print(self.name)
-        print(self.address)
-        print(self.jobtype)
-        print(self.salary)
-        print(self.issyndicate)
+        print(f"ID do funcionário: {self.id}")
+        print(f"Nome do funcionário: {self.name}")
+        print(f"Endereço:{self.address}")
+        print(f"Tipo de afiliação:{self.jobtype}")
+        print(f"Salário fixo: {self.salary}")
+        print(f"Salário Horário: {self.salary_h}")
+        print(f"Taxa de Comissão: {self.comission}")
+        print(f"Afiliação Sindical: {self.issyndicate}")
         if self.card:
-            print(self.card.cardid)
+            print(f"ID do cartão de ponto: {self.card.cardid}")
         print("###################################")
 
     def update(self, parameter, value):
@@ -61,17 +78,17 @@ class Employee:
 
 
     @staticmethod
-    def get_employee_byid(s_id):
-        for i in employees:
+    def get_employee_byid(company, s_id):
+        for i in company.employees:
             if i.id == int(s_id):
                 return i
         return None
 
     @staticmethod
-    def remove(s_id):
-        for i in employees:
+    def remove(company, s_id):
+        for i in company.employees:
             if i.id == int(s_id):
-                employees.remove(i)
+                company.employees.remove(i)
                 del(i)
 
         return
@@ -90,15 +107,25 @@ class Employee:
 
 
     @staticmethod
-    def define_id():
-        return randint(100000000, 999999999)  # return the id
+    def takeIDs(company):
+        ids = []
+        for i in company.employees:
+            ids.append(i.id)
+        return ids
+
+    def defineID(self, company):
+        id = randint(100000000, 999999999)  # return the id
+        ids = self.takeIDs(company)
+        while id in ids:
+            id = randint(100000000, 999999999)
+        return id
 
 
 
 class Hourly(Employee):
-    def __init__(self, name = None, address = None, jobtype = None, salary = None, issyndicate = False, salary_h = None,
-                 day = 1):
-        super().__init__(name, address, jobtype, salary, issyndicate, salary_h)
+    def __init__(self, company, name = None, address = None, jobtype = None, salary = None, issyndicate = False,
+                 salary_h = None, day = 1):
+        super().__init__(company, name, address, jobtype, salary, issyndicate, salary_h)
         self.card = PointCard(self.id, self)
         self.salary_h = salary_h
         self.salary_amount = 0
@@ -129,9 +156,9 @@ class Hourly(Employee):
 
 
 class Commissioned(Employee):
-    def __init__(self, name = None, address = None, jobtype = None, salary = None, issyndicate = False,
+    def __init__(self, company, name = None, address = None, jobtype = None, salary = None, issyndicate = False,
                  comission_percent = None):
-        super().__init__(name, address, jobtype, salary, issyndicate, comission_percent)
+        super().__init__(company, name, address, jobtype, salary, issyndicate, comission_percent)
         self.comission_amount = 0
         self.sales = []
         self.comission_percent = comission_percent
@@ -163,14 +190,14 @@ class Syindicate:
 
 
     @staticmethod
-    def sign_syindicate(employee_id, aditional_taxes = 0):
-        employee = Employee.get_employee_byid(employee_id)
+    def sign_syindicate(empresa, employee_id, aditional_taxes = 0):
+        employee = Employee.get_employee_byid(empresa, employee_id)
         employee.aditional_taxes = aditional_taxes
         employee.issyndicate = True
 
     @staticmethod
-    def plus_aditional_taxes(employee_id, aditional_taxes):
-        employee = Employee.get_employee_byid(employee_id)
+    def plus_aditional_taxes(empresa, employee_id, aditional_taxes):
+        employee = Employee.get_employee_byid(empresa, employee_id)
         employee.aditional_taxes += aditional_taxes
 
 
@@ -196,22 +223,22 @@ class PointCard:
         if employeeid is None:
             self.cardid = None
         else:
-            self.cardid = self.get_card_id()
-        self.employeeid = employeeid
+            self.cardid = employeeid
         self.employee = employee
 
     @staticmethod
     def get_card_id():
         return randint(10000, 99999)
 
-    def add_card(self, employeeid):
-        employee = Employee.get_employee_byid(employeeid)
+    def add_card(self, company, employeeid, salary_h):
+        employee = Employee.get_employee_byid(company, employeeid)
         if employee.card is None:
-            self.cardid = self.get_card_id()
-            self.employeeid = employeeid
+            self.cardid = employeeid
             self.employee = employee
             employee.card = self
+            employee.job_type = "H"
+            employee.salary = 0
+            employee.comission = 0
+            employee.salary_h = salary_h
+
             return self
-
-
-
