@@ -1,20 +1,20 @@
 from classes import Company, Employee, Hourly, Commissioned, PointCard, Syindicate
 
 
-def sindicato():
+def sindicato_func(empresa, sindicato):
     while True:
         n = int(input("1 - Definir taxa sindical geral\n2 - Definir taxa sindical adicional\n0 - Retornar"))
         if n == 0:
             return
         elif n == 1:
             taxa_geral = float(input("Informe o valor que deseja adicionar para a taxa geral: "))
-            s.change_general_taxes(taxa_geral)
-            print(s.taxes)
+            sindicato.changeGeneralTaxes(taxa_geral)
+            print(sindicato.taxes)
 
         elif n == 2:
             identificador = input("Informe o identificador do funcionário: ")
             taxa_ad = float(input("Informe a taxa adicional de serviço: "))
-            s.plus_aditional_taxes(identificador, taxa_ad)
+            sindicato.plusAditionalTaxes(empresa, identificador, taxa_ad)
 
 
 def adicionar_func(empresa):
@@ -56,15 +56,15 @@ def venda(empresa):
             return
         elif n == 1:
             identificador = str(input("ID do funcionário: "))
-            e = Employee.get_employee_byid(empresa, identificador)
+            e = Employee.getEmployeeByID(empresa, identificador)
             if e and e.jobtype == "C":
                 data = input("informe a data da venda: ")
                 valor = float(input("informe o valor da venda: "))
-                e.add_sale(data, valor)
+                e.addSale(data, valor)
                 print("Resultado de venda lançado!")
         elif n == 2:
             identificador = str(input("ID do funcionário: "))
-            e = Employee.get_employee_byid(empresa, identificador)
+            e = Employee.getEmployeeByID(empresa, identificador)
             if e and e.jobtype == "C":
                 print(f"Comissão total: {e.comission_amount}")
                 print("Vendas efetuadas:")
@@ -83,20 +83,20 @@ def cartao(empresa):
             identificador = str(input("ID do funcionário: "))
             card = PointCard()
             salario = float(input("Salário horário"))
-            card.add_card(empresa, identificador, salario)
+            card.addCard(empresa, identificador, salario)
             print(card.cardid)
             print(card.employee.name, card.employee.id)
 
         elif n == 2:
             identificador = str(input("ID do funcionário: "))
-            e = Employee.get_employee_byid(empresa, identificador)
+            e = Employee.getEmployeeByID(empresa, identificador)
             h = int(input("1 - Início de expediente\n2 - Final de expediente\n"))
             if e and h == 1:
                 inicio = int(input("Hora de início: "))
-                e.punch_the_clock_in(inicio)
+                e.punchTheClockIn(inicio)
             elif e and h == 2:
                 final = int(input("Hora de encerramento: "))
-                e.punch_the_clock_out(final)
+                e.punchTheClockOut(final)
                 print(e.salary_amount, e.hours_amount)
 
 
@@ -116,7 +116,7 @@ def funcionario(empresa):
         elif n == 2:
             identificador = str(input("ID do funcionário: "))
             confirme = input("Realmente deseja remover esse funcionario? (s/n)")
-            e = Employee.get_employee_byid(empresa, identificador)
+            e = Employee.getEmployeeByID(empresa, identificador)
             if confirme == "s" and e:
                 Employee.remove(empresa, identificador)
                 print("funcionario removido do sistema")
@@ -126,7 +126,7 @@ def funcionario(empresa):
 
         elif n == 3:
             identificador = str(input("ID do funcionário: "))
-            e = Employee.get_employee_byid(empresa, identificador)
+            e = Employee.getEmployeeByID(empresa, identificador)
             if e:
                 e.info()
             else:
@@ -134,7 +134,7 @@ def funcionario(empresa):
 
         elif n == 4:
             identificador = str(input("ID do funcionário: "))
-            e = Employee.get_employee_byid(empresa, identificador)
+            e = Employee.getEmployeeByID(empresa, identificador)
             if e:
                 print("digite o atributo que você deseja modificar")
                 a = input("(name; salary; syndicate; comission; address; jobtype): ")
@@ -145,7 +145,7 @@ def funcionario(empresa):
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
 
 
-def main(empresa):
+def main(empresa, sindicato):
     while True:
         n = int(input("1 - Funcionario\n2 - Cartão de ponto\n3 - Resultado de venda\n4 - Sindicato\n0 - Sair\n"))
         if n == 0:
@@ -157,9 +157,9 @@ def main(empresa):
         elif n == 3:
             venda(empresa)
         elif n == 4:
-            sindicato()
+            sindicato_func(empresa, sindicato)
 
 
 s = Syindicate(100,  1)
 c = Company()
-main(c)
+main(c, s)

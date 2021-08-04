@@ -32,7 +32,7 @@ class Employee:
 
 
 
-    def add_employee(self, company, name, address, jobtype, salary, issyndicate, salary_h, comission, id = None):
+    def addEmployee(self, company, name, address, jobtype, salary, issyndicate, salary_h, comission, id = None):
         if self.id:
             self.id = id
         else:
@@ -78,7 +78,7 @@ class Employee:
 
 
     @staticmethod
-    def get_employee_byid(company, s_id):
+    def getEmployeeByID(company, s_id):
         for i in company.employees:
             if i.id == int(s_id):
                 return i
@@ -93,7 +93,7 @@ class Employee:
 
         return
 
-    def get_payment(self):
+    def getPayment(self):
         if self.jobtype == "H":
             return self.payment
 
@@ -134,17 +134,17 @@ class Hourly(Employee):
         self.workstarthour = 0
         self.workendhour = 0
 
-    def punch_the_clock_in(self, hour):
+    def punchTheClockIn(self, hour):
         self.workstarthour = hour
 
-    def punch_the_clock_out(self, hour):
+    def punchTheClockOut(self, hour):
         self.workendhour = hour
         work_day = self.workendhour - self.workstarthour
         self.hours_amount = self.hours_amount + work_day
-        self.salary_amount += self.calc_salary(work_day)
+        self.salary_amount += self.calculateSalary(work_day)
         self.payment = self.salary_amount
 
-    def calc_salary(self, work_day):
+    def calculateSalary(self, work_day):
         total = 0
         if work_day > 8:
             extra = work_day - 8
@@ -164,12 +164,12 @@ class Commissioned(Employee):
         self.comission_percent = comission_percent
         self.card = None
 
-    def add_sale(self, date, value):
+    def addSale(self, date, value):
         self.sales.append(Sales(date, value))
-        self.comission_amount = self.get_comission(value)
+        self.comission_amount = self.getComission(value)
         self.payment = self.comission_amount
 
-    def get_comission(self, value):
+    def getComission(self, value):
         self.comission_amount += value * self.comission_percent
         return self.comission_amount
 
@@ -185,19 +185,19 @@ class Syindicate:
         self.syndicate_id = syndicate_id
         self.taxes = taxes
 
-    def change_general_taxes(self, new_g_tax):
+    def changeGeneralTaxes(self, new_g_tax):
         self.taxes = new_g_tax
 
 
     @staticmethod
-    def sign_syindicate(empresa, employee_id, aditional_taxes = 0):
-        employee = Employee.get_employee_byid(empresa, employee_id)
+    def signSyindicate(empresa, employee_id, aditional_taxes = 0):
+        employee = Employee.getEmployeeByID(empresa, employee_id)
         employee.aditional_taxes = aditional_taxes
         employee.issyndicate = True
 
     @staticmethod
-    def plus_aditional_taxes(empresa, employee_id, aditional_taxes):
-        employee = Employee.get_employee_byid(empresa, employee_id)
+    def plusAditionalTaxes(empresa, employee_id, aditional_taxes):
+        employee = Employee.getEmployeeByID(empresa, employee_id)
         employee.aditional_taxes += aditional_taxes
 
 
@@ -226,12 +226,9 @@ class PointCard:
             self.cardid = employeeid
         self.employee = employee
 
-    @staticmethod
-    def get_card_id():
-        return randint(10000, 99999)
 
-    def add_card(self, company, employeeid, salary_h):
-        employee = Employee.get_employee_byid(company, employeeid)
+    def addCard(self, company, employeeid, salary_h):
+        employee = Employee.getEmployeeByID(company, employeeid)
         if employee.card is None:
             self.cardid = employeeid
             self.employee = employee
