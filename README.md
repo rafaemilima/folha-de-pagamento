@@ -19,10 +19,12 @@ O projeto está sendo feito na linguagem python utilizando conceitos de POO.
 ## Funcionalidades
 
 Algumas das funcionalidades já presentes no projeto são:
-* Adição de um funcionário ao sistema
-* Remoção de um funcionário no sistema
-* Atualização das informações de um funcionario no sistema
-* Lançar um cartão de ponto associado a um funcionário
-* Bater ponto de um cartão especificado
-* Lançar um resultado de vendas associado a um funcionario comissionado
-* Lançar uma taxa sindical adicional a um funcionario em específico
+* Adição de um funcionário ao sistema;
+* Remoção de um funcionário no sistema;
+* Atualização das informações de um funcionario no sistema;
+* Lançar um cartão de ponto associado a um funcionário;
+* Bater ponto de um cartão especificado;
+* Lançar um resultado de vendas associado a um funcionario comissionado;
+* Lançar uma taxa sindical adicional a um funcionario em específico;
+* Lançar uma taxa sindical geral;
+* Rodar a folha de pagamento para os funcionários no dia de hoje.
