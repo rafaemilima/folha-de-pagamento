@@ -1,14 +1,117 @@
 from random import randint
+import calendar
+import time
+import datetime as dt
 
 
 class Company:
     def __init__(self):
         self.employees = []
+        self.payagendas = []
+        self.standardPayagendas()
+
+    def printEmployees(self):
+        for employee in self.employees:
+            print(f"Nome: {employee.name}\nID: {employee.id}")
+
+    def standardPayagendas(self):
+        date = time.localtime()
+        month = int(time.strftime("%m", date))
+        weekly = Payagenda()
+        weekly.assumePayagenda("W", 4, month)
+        bimonthly = Payagenda()
+        bimonthly.assumePayagenda("B", 4, month)
+        monthly = Payagenda()
+        monthly.assumePayagenda("M", 100, month)
+        self.payagendas.append(weekly)
+        self.payagendas.append(bimonthly)
+        self.payagendas.append(monthly)
+
+    def printPayAgendas(self):
+        for payagenda in self.payagendas:
+            print(payagenda.nextpayday)
+
+    def makePayments(self, today):
+        for payagenda in self.payagendas:
+            if today == payagenda.nextpayday:
+                for employee in payagenda.employees:
+                    employee.getSalary()
+                    print("\n-------------NEW PAYMENT-------------")
+                    print("Employee Informations")
+                    print(f"ID:{employee.id}")
+                    print(f"Name:{employee.name}")
+                    print("Payment Details")
+                    print(f"Value:{employee.payment.value}")
+                    print(f"Pay Method:{employee.payment.paymethod}")
+                    print(f"Data: {today[0]}/{today[1]}/{today[2]}")
+                    print("--------------------------------------\n")
+                    employee.resetPaymentS()
+                    if employee.jobtype == "C":
+                        employee.resetPaymentC()
+
+                    elif employee.jobtype == "H":
+                        employee.resetPaymentH()
+
+                month = today[1]
+
+                if payagenda.type == "M":
+                    month = (month + 1) % 12
+                    if month == 0:
+                        month += 1
+
+                payagenda.getNextPayday(month, today)
+
+
+
+class Payagenda:
+    def __init__(self):
+        self.employees = []
+        self.nextpayday = []
+        self.type = None
+        self.day = None
+
+    def getNextPayday(self, month, today):
+        d = dt.date(today[2], today[1], today[0])
+        if self.type == "W":
+            d += dt.timedelta(3)
+            while d.weekday() != self.day:
+                d += dt.timedelta(1)
+            list = [d.day, d.month, d.year]
+            self.nextpayday = list
+
+        elif self.type == "M":
+            list = []
+            if self.day == 100:
+                h = self.getLastBusinessDay(2021, month)
+                list = [h, month, d.year]
+            elif self.day == 50:
+                list = [15, month, d.year]
+            elif self.day == 0:
+                list = [1, month, d.year]
+
+            self.nextpayday = list
+
+        elif self.type == "B":
+            d += dt.timedelta(8)
+            while d.weekday() != self.day:
+                d += dt.timedelta(1)
+            list = [d.day, d.month, d.year]
+            self.nextpayday = list
+
+    def assumePayagenda(self, type_pa, wday, month):
+        d = dt.date.today()
+        self.type = type_pa
+        self.day = wday
+        self.getNextPayday(month, [d.day, d.month, d.year])
+
+    @staticmethod
+    def getLastBusinessDay(year: int, month: int) -> int:
+        return max(calendar.monthcalendar(year, month)[-1:][0][:5])
 
 
 class Employee:
     def __init__(self, company, name = None, address = None, jobtype = None, salary = 0, issyndicate = False,
-                 comission = None, salary_h = None, id = None):
+                 comission = None, salary_h = None, id = None, paymethod = None):
 
         if id:
             self.id = id
@@ -24,12 +127,13 @@ class Employee:
         self.salary_h = salary_h
         self.card = None
         self.aditional_taxes = 0
+        self.payment = Payment(paymethod)
+
         if issyndicate == "y":
             self.issyndicate = True
         else:
             self.issyndicate = False
         company.employees.append(self)
-
 
 
     def addEmployee(self, company, name, address, jobtype, salary, issyndicate, salary_h, comission, id = None):
@@ -46,6 +150,17 @@ class Employee:
         self.salary_h = salary_h
         self.comission = comission
         company.employees.append(self)
+
+    def resetPaymentS(self):
+        self.payment.value = 0
+
+    def getSalary(self):
+        if self.jobtype == "C":
+            self.payment.value += (self.salary/2)
+        else:
+            self.payment.value += (self.salary)
+        self.payment.value -= self.aditional_taxes
+
 
     def info(self):
         print("###################################")
@@ -93,18 +208,6 @@ class Employee:
 
         return
 
-    def getPayment(self):
-        if self.jobtype == "H":
-            return self.payment
-
-        elif self.jobtype == "C":
-            return self.payment + self.salary
-
-        elif self.jobtype == "S":
-            return self.salary
-
-        return -1
-
 
     @staticmethod
     def takeIDs(company):
@@ -121,16 +224,19 @@ class Employee:
         return id
 
 
-
 class Hourly(Employee):
     def __init__(self, company, name = None, address = None, jobtype = None, salary = None, issyndicate = False,
-                 salary_h = None, day = 1):
-        super().__init__(company, name, address, jobtype, salary, issyndicate, salary_h)
+                 salary_h = None, day = 1, paymethod = None):
+        super().__init__(company, name, address, jobtype, salary, issyndicate, salary_h, paymethod=paymethod)
         self.card = PointCard(self.id, self)
         self.salary_h = salary_h
-        self.salary_amount = 0
         self.hours_amount = 0
         self.day = day
+        self.workstarthour = 0
+        self.workendhour = 0
+
+    def resetPaymentH(self):
+        self.hours_amount = 0
         self.workstarthour = 0
         self.workendhour = 0
 
@@ -141,8 +247,7 @@ class Hourly(Employee):
         self.workendhour = hour
         work_day = self.workendhour - self.workstarthour
         self.hours_amount = self.hours_amount + work_day
-        self.salary_amount += self.calculateSalary(work_day)
-        self.payment = self.salary_amount
+        self.payment.value += self.calculateSalary(work_day)
 
     def calculateSalary(self, work_day):
         total = 0
@@ -157,21 +262,24 @@ class Hourly(Employee):
 
 class Commissioned(Employee):
     def __init__(self, company, name = None, address = None, jobtype = None, salary = None, issyndicate = False,
-                 comission_percent = None):
-        super().__init__(company, name, address, jobtype, salary, issyndicate, comission_percent)
+                 comission_percent = 0, paymethod = None):
+        super().__init__(company, name, address, jobtype, salary, issyndicate, comission_percent, paymethod=paymethod)
         self.comission_amount = 0
         self.sales = []
         self.comission_percent = comission_percent
-        self.card = None
 
     def addSale(self, date, value):
         self.sales.append(Sales(date, value))
         self.comission_amount = self.getComission(value)
-        self.payment = self.comission_amount
+        self.payment.value += self.comission_amount
 
     def getComission(self, value):
-        self.comission_amount += value * self.comission_percent
+        self.comission_amount += (value * self.comission_percent)
         return self.comission_amount
+
+    def resetPaymentC(self):
+        self.payment.value = 0
+        self.comission_amount = 0
 
 
 class Sales:
@@ -201,21 +309,10 @@ class Syindicate:
         employee.aditional_taxes += aditional_taxes
 
 
-
-
-'''
 class Payment:
-    def __init__(self, payment = None, paymethod = None, type = None, taxes = None):
-        self.payment = payment
+    def __init__(self, paymethod = None, value = 0):
+        self.value = value
         self.paymethod = paymethod
-        self.taxes = self.calc_taxes()
-
-    def make_payment(self):
-        if
-
-    def calc_taxes(self):
-        return 1
-'''
 
 
 class PointCard:
