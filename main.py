@@ -1,4 +1,4 @@
-from classes import Company, Employee, Hourly, Commissioned, PointCard, Syindicate
+from classes import Company, Employee, Hourly, Commissioned, PointCard, Syindicate, Payagenda
 import datetime as dt
 
 
@@ -115,7 +115,8 @@ def cartao(empresa):
 def funcionario(empresa):
     while True:
         n = int(input("1 - Adicionar um novo funcionário\n2 - Remover um funcionário registrado\n3 - Dados do "
-                      "funcionário\n4 - Alterar informações de um funcionário\n0 - Retornar\n"))
+                      "funcionário\n4 - Alterar informações de um funcionário\n5 - Escolher nova Agenda de Pagamento\n"
+                      "0 - Retornar\n"))
 
         if n == 0:
             return
@@ -156,6 +157,74 @@ def funcionario(empresa):
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
 
+        elif n == 5:
+            identificador = str(input("ID do funcionário: "))
+            e = Employee.getEmployeeByID(empresa, identificador)
+            aux1 = ["y", "n"]
+            set = False
+            if e:
+                agenda = empresa.returnPayagenda(e)
+                if agenda.type == "M":
+                    aux = {"beggining": "dia 1", "middle": "dia 15", "end": "último dia útil"}
+                    aux2 = ["beggining", "middle", "end"]
+                    print("------Agenda atual------")
+                    print("Agenda de pagamento mensal")
+                    print(f"Pagamentos realizados no {aux[agenda.period]} de cada mês.")
+                    confirme = input("Deseja alterar o período de pagamento? (y, n)\n")
+                    confirme.lower()
+                    if confirme == "y":
+                        period = int(input("Digite o número do novo período que gostaria de ser pago:\n"
+                                       "1 - Início do mês\n2 - Meio do mês\n3 - Fim do mês\n"))
+                        if aux2[period - 1] == aux[agenda.period]:
+                            print("Você já está sendo pago nesse período!")
+
+                        else:
+                            for a in empresa.payagendas:
+                                if a.type == "M" and a.period == aux2[period - 1]:
+                                    agenda.employees.remove(e)
+                                    a.employees.append(e)
+                                    set = True
+                            if not set:
+                                agenda.employees.remove(e)
+                                new = Payagenda()
+                                new.assumePayagenda("M", None, aux2[period - 1])
+                                new.employees.append(e)
+                                empresa.payagendas.append(new)
+                            print("Sua agenda de pagamento foi atualizada!")
+
+                else:
+                    days = ["segunda-feira","terça-feira", "quarta-feira", "quinta-feira", "sexta-feira" ]
+                    print("------Agenda atual------")
+                    tipo = "semanal"
+                    if agenda.type == "B":
+                        tipo = "bissemanal"
+                    print(f"Agenda de pagamento {tipo}")
+                    print(f"Pagamentos realizados na {days[agenda.day]}")
+                    confirme = input("Deseja alterar o dia de pagamento? (y, n)\n")
+                    confirme.lower()
+                    if confirme == "y":
+                        day = int(input("Digite o novo dia que gostaria de ser pago:\n"
+                                           "1 - segunda\n2 - terça\n3 - quarta\n4 - quinta\n5 - sexta\n"))
+                        if agenda.day == day - 1:
+                            print("Você já está sendo pago nesse dia!")
+                        else:
+                            for a in empresa.payagendas:
+                                if a.type == agenda.type and a.day == day:
+                                    agenda.employees.remove(e)
+                                    a.employees.append(e)
+                                    set = True
+                            if not set:
+                                agenda.employees.remove(e)
+                                new = Payagenda()
+                                new.assumePayagenda(agenda.type, day - 1, None)
+                                new.employees.append(e)
+                                empresa.payagendas.append(new)
+                            print("Sua agenda de pagamento foi atualizada!")
+
+            else:
+                print("ID inválido. Cerfique-se que o funcionário está no sistema.")
+
+
 
 def pagamentos(sindicato, empresa):
     d = dt.date.today()
@@ -164,22 +233,20 @@ def pagamentos(sindicato, empresa):
     if n == 0:
         return
     elif n == 1:
-        empresa.makePayments([d.day, d.month, d.year])
+        empresa.makePayments([d.day, d.month, d.year], sindicato.taxes)
     elif n == 2:
         m = int(input(f"Defina a quantidade de dias a partir de hoje {d.day}/{d.month}/{d.year} ao qual deseja efetuar "
                       f"o pagamento: "))
         for i in range(0, m):
-            empresa.makePayments([d.day, d.month, d.year])
+            empresa.makePayments([d.day, d.month, d.year], sindicato.taxes)
             d += dt.timedelta(1)
             i += 30
 
 
-
-
 def main(empresa, sindicato):
     while True:
-        n = int(input("1 - Funcionario\n2 - Cartão de ponto\n3 - Resultado de venda\n4 - Sindicato\n5 - Efetuar "
-                      "pagamentos\n0 - Sair\n"))
+        n = int(input("1 - Funcionario\n2 - Cartão de ponto\n3 - Resultado de venda\n4 - Sindicato\n5 - Pagamentos"
+                      "\n0 - Sair\n"))
         if n == 0:
             break
         elif n == 1:
@@ -194,7 +261,7 @@ def main(empresa, sindicato):
             pagamentos(sindicato, empresa)
 
 
-s = Syindicate(100,  1)
+s = Syindicate(0,  1)
 c = Company()
 em1 = Hourly(c, "Rafa", "AB", "H", 0, "y", 10, paymethod="cheque")
 c.payagendas[0].employees.append(em1)
