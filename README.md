@@ -27,4 +27,7 @@ Algumas das funcionalidades já presentes no projeto são:
 * Lançar um resultado de vendas associado a um funcionario comissionado;
 * Lançar uma taxa sindical adicional a um funcionario em específico;
 * Lançar uma taxa sindical geral;
-* Rodar a folha de pagamento para os funcionários no dia de hoje.
+* Rodar a folha de pagamento para os funcionários no dia de hoje;
+* Rodar a folha de pagamento dentro de um período de tempo especificado;
+* Lançar uma nova agenda de pagamento diferente das 3 padrões;
+* Funcionário pode personalizar sua agenda de pagamento.
