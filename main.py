@@ -229,7 +229,8 @@ def funcionario(empresa):
 def pagamentos(sindicato, empresa):
     d = dt.date.today()
 
-    n = int(input("1 - Fazer pagamentos para o dia de hoje\n2 - Fazer pagamentos para os próximos dias\n0 - Retornar\n"))
+    n = int(input("1 - Fazer pagamentos para o dia de hoje\n2 - Fazer pagamentos para os próximos dias\n"
+                  "3 - Criar uma nova agenda de pagamento\n0 - Retornar\n"))
     if n == 0:
         return
     elif n == 1:
@@ -241,6 +242,43 @@ def pagamentos(sindicato, empresa):
             empresa.makePayments([d.day, d.month, d.year], sindicato.taxes)
             d += dt.timedelta(1)
             i += 30
+    elif n == 3:
+        aux = ["B", "W", "M"]
+        set = False
+        type = (input("Que tipo de agenda de pagamento você deseja criar?\nB - Bisemanal\nW - Semanal\nM - Mensal\n"))
+        if type not in aux:
+            print("Tipo inválido.")
+        else:
+            aux2 = ["beggining", "middle", "end"]
+            new = Payagenda()
+            if type == "M":
+                period = int(input("Informe o período do mês em que deseja ser pago:\n1 - Início do mês (dia 1)\n"
+                                   "2 - Meio do mês (dia 15)\n3 - Final do mês (último dia útil)"))
+                new.assumePayagenda(type, None, aux2[period-1])
+                for agenda in empresa.payagendas:
+                    if new.period == agenda.period:
+                        print("Agenda já cadastrada!")
+                        break
+                        set = True
+                if not set:
+                    empresa.payagendas.append(new)
+                    print("A nova agenda foi cadastrada!")
+
+            else:
+                day = int(input("Digite o dia da semana que o pagamento ocorrerá:\n"
+                                "1 - segunda\n2 - terça\n3 - quarta\n4 - quinta\n5 - sexta\n"))
+                new.assumePayagenda(type, day - 1, None)
+
+                for agenda in empresa.payagendas:
+                    if new.day == agenda.day and new.type == agenda.type:
+                        print("Agenda já cadastrada!")
+                        set = True
+                if not set:
+                    empresa.payagendas.append(new)
+                    print("A nova agenda foi cadastrada!")
+
+
+
 
 
 def main(empresa, sindicato):
