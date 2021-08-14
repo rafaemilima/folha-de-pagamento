@@ -48,6 +48,23 @@ class Actions:
                     action.ogemployee.payment.value -= action.ogemployee.comission_amount
                     action.ogemployee.comission_amount -= (sale.value * action.ogemployee.comission_percent)
                     print(len(action.ogemployee.sales))
+            elif action.type == "clockin":
+                new = action.attrvalue
+                if redo:
+                    new = new * (-1)
+                action.ogemployee.workstarthour -= new
+                print(action.ogemployee.workstarthour)
+            elif action.type == "clockout":
+                employee = action.ogemployee
+                if redo:
+                    employee.punchTheClockOut(action.attrvalue)
+                else:
+                    employee.workendhour = action.attrvalue
+                    work_day = employee.workendhour - employee.workstarthour
+                    employee.hours_amount -= work_day
+                    employee.payment.value -= employee.calculateSalary(work_day)
+                print(employee.hours_amount)
+                print(employee.payment.value)
 
             if redo:
                 self.undostack.append(action)

@@ -76,7 +76,7 @@ def adicionar_func(empresa):
 def venda(empresa):
     while True:
         n = input("1 - Registrar uma nova venda\n2 - Ver total de vendas\n0 - Retornar\n\nundo(u) | redo(r)\n")
-        if n == 0:
+        if n == "0":
             empresa.cleanStacks()
             return
         elif n == "1":
@@ -105,12 +105,13 @@ def venda(empresa):
 
 def cartao(empresa):
     while True:
-        n = int(input("1 - Adicionar cartão de ponto\n2 - Bater ponto\n0 - Retornar\n"))
+        n = input("1 - Adicionar cartão de ponto\n2 - Bater ponto\n0 - Retornar\n\nundo(u) | redo(r)\n")
 
-        if n == 0:
+        if n == "0":
+            empresa.cleanStacks()
             return
 
-        elif n == 1:
+        elif n == "1":
             identificador = str(input("ID do funcionário: "))
             card = PointCard()
             salario = float(input("Salário horário: "))
@@ -118,22 +119,30 @@ def cartao(empresa):
             print(card.cardid)
             print(card.employee.name, card.employee.id)
 
-        elif n == 2:
+        elif n == "2":
             identificador = str(input("ID do funcionário: "))
             e = Employee.getEmployeeByID(empresa, identificador)
             while not e:
                 print("ID inválido")
                 identificador = str(input("ID do funcionário: "))
+                e = Employee.getEmployeeByID(empresa, identificador)
 
             e = Employee.getEmployeeByID(empresa, identificador)
             h = int(input("1 - Início de expediente\n2 - Final de expediente\n"))
             if e and h == 1:
                 inicio = int(input("Hora de início: "))
                 e.punchTheClockIn(inicio)
+                action = Action(empresa.actions, e, "clockin", value=inicio)
             elif e and h == 2:
                 final = int(input("Hora de encerramento: "))
                 e.punchTheClockOut(final)
-                # print(e.salaryH, e.hours_amount)
+                action = Action(empresa.actions, e, "clockout", value=final)
+
+        elif n == "u":
+            empresa.actions.undoRedo(empresa, False)
+
+        elif n == "r":
+            empresa.actions.undoRedo(empresa, True)
 
 
 def funcionario(empresa):
@@ -240,7 +249,7 @@ def funcionario(empresa):
                             print("Você já está sendo pago nesse dia!")
                         else:
                             for a in empresa.payagendas:
-                                if a.type == agenda.type and a.day == day:
+                                if a.type == agenda.type and a.day == day-1:
                                     agenda.employees.remove(e)
                                     a.employees.append(e)
                                     set = True
@@ -342,6 +351,6 @@ c.payagendas[0].employees.append(em1)
 em2 = Commissioned(c, "Rick", "MCZ", "C", 100, "n", 0.5, paymethod="cartão")
 c.payagendas[1].employees.append(em2)
 em3 = Employee(c, "Jão", "CA", "S", 100, "y", 0, 0, paymethod= "boleto")
+
 c.payagendas[2].employees.append(em3)
-c.printEmployees()
 main(c)
