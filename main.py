@@ -8,6 +8,7 @@ def sindicato_func(empresa):
                       "undo(u) | redo(r)\n")
 
         if n == "0":
+            empresa.cleanStacks()
             return
 
         elif n == "1":
@@ -20,13 +21,16 @@ def sindicato_func(empresa):
         elif n == "2":
             identificador = input("Informe o identificador do funcionário: ")
             taxa_ad = float(input("Informe a taxa adicional de serviço: "))
-            empresa.syndicate.plusAditionalTaxes(empresa, identificador, taxa_ad)
+            e = Employee.getEmployeeByID(empresa, identificador)
+            if e:
+                action = Action(empresa.actions, e, "aditionaltaxes", taxa_ad)
+                empresa.syndicate.plusAditionalTaxes(empresa, identificador, taxa_ad)
 
         elif n == "u":
             empresa.actions.undoRedo(empresa, False)
 
         elif n == "r":
-            empresa.actions.undoRedo(empresa, False)
+            empresa.actions.undoRedo(empresa, True)
 
 
 def adicionar_func(empresa):
@@ -71,18 +75,20 @@ def adicionar_func(empresa):
 
 def venda(empresa):
     while True:
-        n = int(input("1 - Registrar uma nova venda\n2 - Ver total de vendas\n0 - Retornar\n"))
+        n = input("1 - Registrar uma nova venda\n2 - Ver total de vendas\n0 - Retornar\n\nundo(u) | redo(r)\n")
         if n == 0:
+            empresa.cleanStacks()
             return
-        elif n == 1:
+        elif n == "1":
             identificador = str(input("ID do funcionário: "))
             e = Employee.getEmployeeByID(empresa, identificador)
             if e and e.jobtype == "C":
                 data = input("informe a data da venda: ")
                 valor = float(input("informe o valor da venda: "))
+                action = Action(empresa.actions, e, "sale", [data, valor])
                 e.addSale(data, valor)
                 print("Resultado de venda lançado!")
-        elif n == 2:
+        elif n == "2":
             identificador = str(input("ID do funcionário: "))
             e = Employee.getEmployeeByID(empresa, identificador)
             if e and e.jobtype == "C":
@@ -90,6 +96,11 @@ def venda(empresa):
                 print("Vendas efetuadas:")
                 for i in e.sales:
                     print (i.value)
+        elif n == "u":
+            empresa.actions.undoRedo(empresa, False)
+
+        elif n == "r":
+            empresa.actions.undoRedo(empresa, True)
 
 
 def cartao(empresa):
@@ -170,7 +181,7 @@ def funcionario(empresa):
                 a = int(input("|1 - name; 2 - stand salary; 3 - syndicate association; 4 - address;\n|5 - jobtype;"
                               "6 - pay method; 7 - hourly salary; 8 - comission percent\n"))
                 old = e.getAttribute(aux[a-1])
-                valor = input("Digite o novo valor para o atributo esp1ecificado: ")
+                valor = input("Digite o novo valor para o atributo especificado: ")
                 new_action = Action(empresa.actions, copy, "update", value=old, attribute=aux[a-1])
                 e.update(aux[a-1], valor)
 
@@ -253,7 +264,6 @@ def funcionario(empresa):
 
         elif n == "r":
             empresa.actions.undoRedo(empresa, True)
-
 
 
 def pagamentos(empresa):

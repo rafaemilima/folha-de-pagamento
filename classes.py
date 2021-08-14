@@ -33,9 +33,21 @@ class Actions:
                 company.syndicate.taxes = action.attrvalue
                 action.attrvalue = old
             elif action.type == "aditionaltaxes":
-                pass
+                print(action.ogemployee.aditional_taxes)
+                new = action.attrvalue
+                if redo:
+                    new = new * (-1)
+                action.ogemployee.aditional_taxes -= new
+                print(action.ogemployee.aditional_taxes)
             elif action.type == "sale":
-                pass
+                if redo:
+                    action.ogemployee.addSale(action.attrvalue[0], action.attrvalue[1])
+                    print(len(action.ogemployee.sales))
+                else:
+                    sale = action.ogemployee.sales.pop()
+                    action.ogemployee.payment.value -= action.ogemployee.comission_amount
+                    action.ogemployee.comission_amount -= (sale.value * action.ogemployee.comission_percent)
+                    print(len(action.ogemployee.sales))
 
             if redo:
                 self.undostack.append(action)
@@ -44,30 +56,6 @@ class Actions:
         print(f"undo feito tamanho da pilha de undo: {len(self.undostack)}")
         print(f"tamanho da pilha de redo: {len(self.redostack)}")
 
-
-    '''def redo(self, company):
-        if len(self.redostack) > 0:
-            action = self.redostack.pop()
-            if action.type == "remove":
-                company.employees.append(action.ogemployee)
-                action.type = "create"
-            elif action.type == "create":
-                action.ogemployee.remove(company, action.ogemployee.id)
-                action.type = "remove"
-            elif action.type == "create":
-                action.ogemployee.remove(company, action.ogemployee.id)
-                action.type = "remove"
-            elif action.type == "update":
-                old = action.ogemployee.getAttribute(action.attribute)
-                action.ogemployee.update(action.attribute, action.attrvalue)
-                action.attrvalue = old
-
-            self.undostack.append(action)
-            print(f"redo feito tamanho da pilha de undo: {len(self.undostack)}")
-            print(f"tamanho da pilha de redo: {len(self.redostack)}")
-        else:
-            print("empty redo stack")
-'''
 
 class Action:
     def __init__(self, actions, employee, type = None, value = None, attribute = None):
