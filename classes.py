@@ -4,11 +4,81 @@ import time
 import datetime as dt
 
 
+class Actions:
+    def __init__(self):
+        self.redostack = []
+        self.undostack = []
+
+    def undo(self, company):
+        if len(self.undostack) > 0:
+            action = self.undostack.pop()
+            if action.card:
+                pass
+            elif action.sale:
+                pass
+            else:
+                if action.type == "remove":
+                    company.employees.append(action.ogemployee)
+                    action.type = "create"
+                elif action.type == "create":
+                    action.ogemployee.remove(company, action.ogemployee.id)
+                    action.type = "remove"
+                elif action.type == "update":
+                    old = action.ogemployee.getAttribute(action.attribute)
+                    action.ogemployee.update(action.attribute, action.attrvalue)
+                    action.attrvalue = old
+                    print(action.attrvalue)
+
+                self.redostack.append(action)
+                print(f"undo feito tamanho da pilha de undo: {len(self.undostack)}")
+                print(f"tamanho da pilha de redo: {len(self.redostack)}")
+        else:
+            print("empty undo stack")
+
+    def redo(self, company):
+        if len(self.redostack) > 0:
+            action = self.redostack.pop()
+            if action.type == "remove":
+                company.employees.append(action.ogemployee)
+                action.type = "create"
+            elif action.type == "create":
+                action.ogemployee.remove(company, action.ogemployee.id)
+                action.type = "remove"
+            elif action.type == "update":
+                old = action.ogemployee.getAttribute(action.attribute)
+                action.ogemployee.update(action.attribute, action.attrvalue)
+                action.attrvalue = old
+
+            self.undostack.append(action)
+            print(f"redo feito tamanho da pilha de undo: {len(self.undostack)}")
+            print(f"tamanho da pilha de redo: {len(self.redostack)}")
+        else:
+            print("empty redo stack")
+
+
+class Action:
+    def __init__(self, actions, employee, type = None, card = False, sale = False, value = None, attribute = None):
+        self.type = type
+        self.ogemployee = employee
+        self.card = card
+        self.sale = sale
+        self.attribute = attribute
+        self.attrvalue = value
+        actions.undostack.append(self)
+        if len(actions.redostack) > 0:
+            actions.redostack = []
+
+
 class Company:
     def __init__(self):
         self.employees = []
         self.payagendas = []
         self.standardPayagendas()
+        self.actions = Actions()
+
+    def cleanStacks(self):
+        self.actions.undostack = []
+        self.actions.redostack = []
 
     def printEmployees(self):
         for employee in self.employees:
@@ -125,7 +195,7 @@ class Payagenda:
 
 
 class Employee:
-    def __init__(self, company, name = None, address = None, jobtype = None, salary = 0, issyndicate = False,
+    def __init__(self, company = None, name = None, address = None, jobtype = None, salary = 0, issyndicate = False,
                  comission = None, salary_h = None, id = None, paymethod = None):
 
         if id:
@@ -191,7 +261,22 @@ class Employee:
             print(f"ID do cartão de ponto: {self.card.cardid}")
         print("###################################")
 
+    def getAttribute(self, parameter):
+        if parameter == "name":
+            return self.name
+        elif parameter == "salary":
+            return self.salary
+        elif parameter == "syndicate":
+            return self.issyndicate
+        elif parameter == "comission":
+            return self.comission
+        elif parameter == "address":
+            return self.address
+        elif parameter == "jobtype":
+            return self.jobtype
+
     def update(self, parameter, value):
+
         if parameter == "name":
             self.name = value
         elif parameter == "salary":
