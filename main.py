@@ -4,18 +4,29 @@ import datetime as dt
 
 def sindicato_func(empresa):
     while True:
-        n = int(input("1 - Definir taxa sindical geral\n2 - Definir taxa sindical adicional\n0 - Retornar"))
-        if n == 0:
+        n = input("1 - Definir taxa sindical geral\n2 - Definir taxa sindical adicional\n0 - Retornar\n\n"
+                      "undo(u) | redo(r)\n")
+
+        if n == "0":
             return
-        elif n == 1:
+
+        elif n == "1":
+            print(f"Taxa atual: {empresa.syndicate.taxes}")
             taxa_geral = float(input("Informe o valor que deseja adicionar para a taxa geral: "))
+            action = Action(empresa.actions, None, "generaltaxes", empresa.syndicate.taxes)
             empresa.syndicate.changeGeneralTaxes(taxa_geral)
             print(empresa.syndicate.taxes)
 
-        elif n == 2:
+        elif n == "2":
             identificador = input("Informe o identificador do funcionário: ")
             taxa_ad = float(input("Informe a taxa adicional de serviço: "))
             empresa.syndicate.plusAditionalTaxes(empresa, identificador, taxa_ad)
+
+        elif n == "u":
+            empresa.actions.undoRedo(empresa, False)
+
+        elif n == "r":
+            empresa.actions.undoRedo(empresa, False)
 
 
 def adicionar_func(empresa):
@@ -238,10 +249,10 @@ def funcionario(empresa):
                 print(f"Nome: {employee.name} | ID: {employee.id}")
 
         elif n == "u":
-            empresa.actions.undo(empresa)
+            empresa.actions.undoRedo(empresa, False)
 
         elif n == "r":
-            empresa.actions.redo(empresa)
+            empresa.actions.undoRedo(empresa, True)
 
 
 

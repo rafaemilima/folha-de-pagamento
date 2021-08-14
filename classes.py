@@ -9,9 +9,14 @@ class Actions:
         self.redostack = []
         self.undostack = []
 
-    def undo(self, company):
-        if len(self.undostack) > 0:
+    def undoRedo(self, company, redo):
+        action = None
+        if not redo and len(self.undostack) > 0:
             action = self.undostack.pop()
+        if redo and len(self.redostack) > 0:
+            action = self.redostack.pop()
+
+        if action:
             if action.type == "remove":
                 company.employees.append(action.ogemployee)
                 action.type = "create"
@@ -23,19 +28,32 @@ class Actions:
                 action.ogemployee.update(action.attribute, action.attrvalue)
                 action.attrvalue = old
                 print(action.attrvalue)
+            elif action.type == "generaltaxes":
+                old = company.syndicate.taxes
+                company.syndicate.taxes = action.attrvalue
+                action.attrvalue = old
+            elif action.type == "aditionaltaxes":
+                pass
+            elif action.type == "sale":
+                pass
 
-            self.redostack.append(action)
-            print(f"undo feito tamanho da pilha de undo: {len(self.undostack)}")
-            print(f"tamanho da pilha de redo: {len(self.redostack)}")
-        else:
-            print("empty undo stack")
+            if redo:
+                self.undostack.append(action)
+            else:
+                self.redostack.append(action)
+        print(f"undo feito tamanho da pilha de undo: {len(self.undostack)}")
+        print(f"tamanho da pilha de redo: {len(self.redostack)}")
 
-    def redo(self, company):
+
+    '''def redo(self, company):
         if len(self.redostack) > 0:
             action = self.redostack.pop()
             if action.type == "remove":
                 company.employees.append(action.ogemployee)
                 action.type = "create"
+            elif action.type == "create":
+                action.ogemployee.remove(company, action.ogemployee.id)
+                action.type = "remove"
             elif action.type == "create":
                 action.ogemployee.remove(company, action.ogemployee.id)
                 action.type = "remove"
@@ -49,7 +67,7 @@ class Actions:
             print(f"tamanho da pilha de redo: {len(self.redostack)}")
         else:
             print("empty redo stack")
-
+'''
 
 class Action:
     def __init__(self, actions, employee, type = None, value = None, attribute = None):
