@@ -30,5 +30,5 @@ Algumas das funcionalidades já presentes no projeto são:
 * Rodar a folha de pagamento para os funcionários no dia de hoje;
 * Rodar a folha de pagamento dentro de um período de tempo especificado;
 * Lançar uma nova agenda de pagamento diferente das 3 padrões;
-* Funcionário pode personalizar sua agenda de pagamento.
-* Funcionalidade de Undo e Redo no menu de funcionários, cartões de ponto, sindicato e resultado de vendas
+* Funcionário pode personalizar sua agenda de pagamento;
+* Funcionalidade de Undo e Redo nos menus de registro.
