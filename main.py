@@ -1,4 +1,4 @@
-from classes import Company, Employee, Hourly, Commissioned, PointCard, Syindicate, Payagenda
+from classes import Company, Employee, Hourly, Commissioned, PointCard, Syindicate, Payagenda, Action, Actions
 import datetime as dt
 
 
@@ -30,7 +30,6 @@ def adicionar_func(empresa):
         print("Valor inválido para o atributo!")
         tipo = input("Tipo de funcionário (C - Comissionado; S - Assalariado; H - Horista): ")
         tipo.upper()
-    salario = float(input("Salario fixo mensal (0 se Horista): "))
     sindicado = str(input("Afiliação sindical (y, n): "))
     sindicado.lower()
     while sindicado not in aux2:
@@ -40,15 +39,18 @@ def adicionar_func(empresa):
     e1 = None
 
     if(tipo == "H"):
-        salario_h = float(input("Salario por hora (valor float, 0 se Comissionado ou Assalariado): "))
+        salario_h = float(input("Salario por hora: "))
         e1 = Hourly(empresa, nome, endereco, tipo, 0, sindicado, salario_h, metodopagamento)
         c.payagendas[0].employees.append(e1)
     elif(tipo == "C"):
+        salario = float(input("Salario mensal: "))
         comissao = float(input("Taxa de comissão (valor decimal):"))
-        e1 = Commissioned(empresa, nome, endereco, tipo, salario, sindicado, comissao, metodopagamento)
+        e1 = Commissioned(empresa, nome, endereco, tipo, salary=salario, issyndicate=sindicado,
+                          comission_percent=comissao, paymethod=metodopagamento)
         c.payagendas[1].employees.append(e1)
     elif(tipo == "S"):
-        e1 = Employee(empresa, nome, endereco, tipo, salario, sindicado, 0, 0, metodopagamento)
+        salario = float(input("Salario mensal: "))
+        e1 = Employee(empresa, nome, endereco, tipo, salario, sindicado, 0, 0, paymethod=metodopagamento)
         c.payagendas[2].employees.append(e1)
     else:
         print("erro")
@@ -116,26 +118,28 @@ def funcionario(empresa):
     while True:
         n = int(input("1 - Adicionar um novo funcionário\n2 - Remover um funcionário registrado\n3 - Dados do "
                       "funcionário\n4 - Alterar informações de um funcionário\n5 - Escolher nova Agenda de Pagamento\n"
-                      "0 - Retornar\n"))
+                      "6 - Undo\n7 - Redo\n8 - Mostrar todos os funcionários\n0 - Retornar\n"))
 
         if n == 0:
+            empresa.cleanStacks()
             return
 
         elif n == 1:
             new = adicionar_func(empresa)
+            action = Action(empresa.actions, new, "create")
             print("Novo funcionario criado!")
             print(f"ID: {new.id}")
 
         elif n == 2:
             identificador = str(input("ID do funcionário: "))
-            confirme = input("Realmente deseja remover esse funcionario? (s/n)")
+            confirme = input("Realmente deseja remover esse funcionario? (y/n)")
             e = Employee.getEmployeeByID(empresa, identificador)
-            if confirme == "s" and e:
+            action = Action(empresa.actions, e, "remove")
+            if confirme == "y" and e:
                 Employee.remove(empresa, identificador)
-                print("funcionario removido do sistema")
+                print("Funcionario removido do sistema")
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
-
 
         elif n == 3:
             identificador = str(input("ID do funcionário: "))
@@ -148,11 +152,15 @@ def funcionario(empresa):
         elif n == 4:
             identificador = str(input("ID do funcionário: "))
             e = Employee.getEmployeeByID(empresa, identificador)
+            copy = e
             if e:
-                print("digite o atributo que você deseja modificar")
-                a = input("(name; salary; syndicate; comission; address; jobtype): ")
-                valor = input("Digite o novo valor para o atributo especificado: ")
-                e.update(a, valor)
+                aux = ["name", "salary", "syndicate", "address", "jobtype"]
+                print("Digite o atributo que você deseja modificar")
+                a = int(input("1 - name; 2 - salary; 3 - syndicate association; 4 - address; 5 - jobtype): "))
+                old = e.getAttribute(aux[a-1])
+                valor = input("Digite o novo valor para o atributo esp1ecificado: ")
+                new_action = Action(empresa.actions, copy, "update", value=old, attribute=aux[a-1])
+                e.update(aux[a-1], valor)
 
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
@@ -224,7 +232,15 @@ def funcionario(empresa):
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
 
+        elif n == 6:
+            empresa.actions.undo(empresa)
 
+        elif n == 7:
+            empresa.actions.redo(empresa)
+
+        elif n == 8:
+            for employee in empresa.employees:
+                print(f"Nome: {employee.name} | ID: {employee.id}")
 
 def pagamentos(sindicato, empresa):
     d = dt.date.today()
@@ -253,7 +269,7 @@ def pagamentos(sindicato, empresa):
             new = Payagenda()
             if type == "M":
                 period = int(input("Informe o período do mês em que deseja ser pago:\n1 - Início do mês (dia 1)\n"
-                                   "2 - Meio do mês (dia 15)\n3 - Final do mês (último dia útil)"))
+                                   "2 - Meio do mês (dia 15)\n3 - Final do mês (último dia útil)\n"))
                 new.assumePayagenda(type, None, aux2[period-1])
                 for agenda in empresa.payagendas:
                     if new.period == agenda.period:
@@ -276,9 +292,6 @@ def pagamentos(sindicato, empresa):
                 if not set:
                     empresa.payagendas.append(new)
                     print("A nova agenda foi cadastrada!")
-
-
-
 
 
 def main(empresa, sindicato):
