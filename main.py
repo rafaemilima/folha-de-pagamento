@@ -1,21 +1,21 @@
-from classes import Company, Employee, Hourly, Commissioned, PointCard, Syindicate, Payagenda, Action, Actions
+from classes import Company, Employee, Hourly, Commissioned, PointCard, Payagenda, Action
 import datetime as dt
 
 
-def sindicato_func(empresa, sindicato):
+def sindicato_func(empresa):
     while True:
         n = int(input("1 - Definir taxa sindical geral\n2 - Definir taxa sindical adicional\n0 - Retornar"))
         if n == 0:
             return
         elif n == 1:
             taxa_geral = float(input("Informe o valor que deseja adicionar para a taxa geral: "))
-            sindicato.changeGeneralTaxes(taxa_geral)
-            print(sindicato.taxes)
+            empresa.syndicate.changeGeneralTaxes(taxa_geral)
+            print(empresa.syndicate.taxes)
 
         elif n == 2:
             identificador = input("Informe o identificador do funcionário: ")
             taxa_ad = float(input("Informe a taxa adicional de serviço: "))
-            sindicato.plusAditionalTaxes(empresa, identificador, taxa_ad)
+            empresa.syndicate.plusAditionalTaxes(empresa, identificador, taxa_ad)
 
 
 def adicionar_func(empresa):
@@ -116,21 +116,21 @@ def cartao(empresa):
 
 def funcionario(empresa):
     while True:
-        n = int(input("1 - Adicionar um novo funcionário\n2 - Remover um funcionário registrado\n3 - Dados do "
+        n = (input("1 - Adicionar um novo funcionário\n2 - Remover um funcionário registrado\n3 - Dados do "
                       "funcionário\n4 - Alterar informações de um funcionário\n5 - Escolher nova Agenda de Pagamento\n"
-                      "6 - Undo\n7 - Redo\n8 - Mostrar todos os funcionários\n0 - Retornar\n"))
+                      "6 - Mostrar todos os funcionários\n0 - Retornar\n\nundo(u) | redo(r)\n"))
 
-        if n == 0:
+        if n == "0":
             empresa.cleanStacks()
             return
 
-        elif n == 1:
+        elif n == "1":
             new = adicionar_func(empresa)
             action = Action(empresa.actions, new, "create")
             print("Novo funcionario criado!")
             print(f"ID: {new.id}")
 
-        elif n == 2:
+        elif n == "2":
             identificador = str(input("ID do funcionário: "))
             confirme = input("Realmente deseja remover esse funcionario? (y/n)")
             e = Employee.getEmployeeByID(empresa, identificador)
@@ -141,7 +141,7 @@ def funcionario(empresa):
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
 
-        elif n == 3:
+        elif n == "3":
             identificador = str(input("ID do funcionário: "))
             e = Employee.getEmployeeByID(empresa, identificador)
             if e:
@@ -149,14 +149,15 @@ def funcionario(empresa):
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
 
-        elif n == 4:
+        elif n == "4":
             identificador = str(input("ID do funcionário: "))
             e = Employee.getEmployeeByID(empresa, identificador)
             copy = e
             if e:
-                aux = ["name", "salary", "syndicate", "address", "jobtype"]
-                print("Digite o atributo que você deseja modificar")
-                a = int(input("1 - name; 2 - salary; 3 - syndicate association; 4 - address; 5 - jobtype): "))
+                aux = ["name", "salary", "syndicate", "address", "jobtype", "paymethod"]
+                print("Digite o atributo que você deseja modificar:")
+                a = int(input("|1 - name; 2 - stand salary; 3 - syndicate association; 4 - address;\n|5 - jobtype;"
+                              "6 - pay method; 7 - hourly salary; 8 - comission percent\n"))
                 old = e.getAttribute(aux[a-1])
                 valor = input("Digite o novo valor para o atributo esp1ecificado: ")
                 new_action = Action(empresa.actions, copy, "update", value=old, attribute=aux[a-1])
@@ -165,7 +166,7 @@ def funcionario(empresa):
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
 
-        elif n == 5:
+        elif n == "5":
             identificador = str(input("ID do funcionário: "))
             e = Employee.getEmployeeByID(empresa, identificador)
             aux1 = ["y", "n"]
@@ -201,7 +202,7 @@ def funcionario(empresa):
                             print("Sua agenda de pagamento foi atualizada!")
 
                 else:
-                    days = ["segunda-feira","terça-feira", "quarta-feira", "quinta-feira", "sexta-feira" ]
+                    days = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira"]
                     print("------Agenda atual------")
                     tipo = "semanal"
                     if agenda.type == "B":
@@ -232,17 +233,19 @@ def funcionario(empresa):
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
 
-        elif n == 6:
-            empresa.actions.undo(empresa)
-
-        elif n == 7:
-            empresa.actions.redo(empresa)
-
-        elif n == 8:
+        elif n == "6":
             for employee in empresa.employees:
                 print(f"Nome: {employee.name} | ID: {employee.id}")
 
-def pagamentos(sindicato, empresa):
+        elif n == "u":
+            empresa.actions.undo(empresa)
+
+        elif n == "r":
+            empresa.actions.redo(empresa)
+
+
+
+def pagamentos(empresa):
     d = dt.date.today()
 
     n = int(input("1 - Fazer pagamentos para o dia de hoje\n2 - Fazer pagamentos para os próximos dias\n"
@@ -250,12 +253,12 @@ def pagamentos(sindicato, empresa):
     if n == 0:
         return
     elif n == 1:
-        empresa.makePayments([d.day, d.month, d.year], sindicato.taxes)
+        empresa.makePayments([d.day, d.month, d.year], empresa.syndicate.taxes)
     elif n == 2:
         m = int(input(f"Defina a quantidade de dias a partir de hoje {d.day}/{d.month}/{d.year} ao qual deseja efetuar "
                       f"o pagamento: "))
         for i in range(0, m):
-            empresa.makePayments([d.day, d.month, d.year], sindicato.taxes)
+            empresa.makePayments([d.day, d.month, d.year], empresa.syndicate.taxes)
             d += dt.timedelta(1)
             i += 30
     elif n == 3:
@@ -294,7 +297,7 @@ def pagamentos(sindicato, empresa):
                     print("A nova agenda foi cadastrada!")
 
 
-def main(empresa, sindicato):
+def main(empresa):
     while True:
         n = int(input("1 - Funcionario\n2 - Cartão de ponto\n3 - Resultado de venda\n4 - Sindicato\n5 - Pagamentos"
                       "\n0 - Sair\n"))
@@ -307,12 +310,11 @@ def main(empresa, sindicato):
         elif n == 3:
             venda(empresa)
         elif n == 4:
-            sindicato_func(empresa, sindicato)
+            sindicato_func(empresa)
         elif n == 5:
-            pagamentos(sindicato, empresa)
+            pagamentos(empresa)
 
 
-s = Syindicate(0,  1)
 c = Company()
 em1 = Hourly(c, "Rafa", "AB", "H", 0, "y", 10, paymethod="cheque")
 c.payagendas[0].employees.append(em1)
@@ -321,4 +323,4 @@ c.payagendas[1].employees.append(em2)
 em3 = Employee(c, "Jão", "CA", "S", 100, "y", 0, 0, paymethod= "boleto")
 c.payagendas[2].employees.append(em3)
 c.printEmployees()
-main(c, s)
+main(c)

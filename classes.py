@@ -12,26 +12,21 @@ class Actions:
     def undo(self, company):
         if len(self.undostack) > 0:
             action = self.undostack.pop()
-            if action.card:
-                pass
-            elif action.sale:
-                pass
-            else:
-                if action.type == "remove":
-                    company.employees.append(action.ogemployee)
-                    action.type = "create"
-                elif action.type == "create":
-                    action.ogemployee.remove(company, action.ogemployee.id)
-                    action.type = "remove"
-                elif action.type == "update":
-                    old = action.ogemployee.getAttribute(action.attribute)
-                    action.ogemployee.update(action.attribute, action.attrvalue)
-                    action.attrvalue = old
-                    print(action.attrvalue)
+            if action.type == "remove":
+                company.employees.append(action.ogemployee)
+                action.type = "create"
+            elif action.type == "create":
+                action.ogemployee.remove(company, action.ogemployee.id)
+                action.type = "remove"
+            elif action.type == "update":
+                old = action.ogemployee.getAttribute(action.attribute)
+                action.ogemployee.update(action.attribute, action.attrvalue)
+                action.attrvalue = old
+                print(action.attrvalue)
 
-                self.redostack.append(action)
-                print(f"undo feito tamanho da pilha de undo: {len(self.undostack)}")
-                print(f"tamanho da pilha de redo: {len(self.redostack)}")
+            self.redostack.append(action)
+            print(f"undo feito tamanho da pilha de undo: {len(self.undostack)}")
+            print(f"tamanho da pilha de redo: {len(self.redostack)}")
         else:
             print("empty undo stack")
 
@@ -57,11 +52,9 @@ class Actions:
 
 
 class Action:
-    def __init__(self, actions, employee, type = None, card = False, sale = False, value = None, attribute = None):
+    def __init__(self, actions, employee, type = None, value = None, attribute = None):
         self.type = type
         self.ogemployee = employee
-        self.card = card
-        self.sale = sale
         self.attribute = attribute
         self.attrvalue = value
         actions.undostack.append(self)
@@ -75,6 +68,7 @@ class Company:
         self.payagendas = []
         self.standardPayagendas()
         self.actions = Actions()
+        self.syndicate = Syindicate(0,  1)
 
     def cleanStacks(self):
         self.actions.undostack = []
@@ -339,6 +333,7 @@ class Hourly(Employee):
         self.hours_amount = 0
         self.workstarthour = 0
         self.workendhour = 0
+        self.aditional_taxes = 0
 
     def punchTheClockIn(self, hour):
         self.workstarthour = hour
@@ -380,6 +375,7 @@ class Commissioned(Employee):
     def resetPaymentC(self):
         self.payment.value = 0
         self.comission_amount = 0
+        self.aditional_taxes = 0
 
 
 class Sales:
