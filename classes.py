@@ -285,7 +285,6 @@ class Employee:
             self.payment.value += (self.salary)
         self.payment.value -= self.aditional_taxes
 
-
     def info(self):
         print("###################################")
         print(f"ID do funcionário: {self.id}")
@@ -311,8 +310,12 @@ class Employee:
             return self.comission
         elif parameter == "address":
             return self.address
-        elif parameter == "jobtype":
-            return self.jobtype
+        elif parameter == "paymethod":
+            return self.payment.paymethod
+        elif parameter == "salary_h":
+            return self.salary_h
+        elif parameter == "comission":
+            return self.comission
 
     def update(self, parameter, value):
 
@@ -326,8 +329,12 @@ class Employee:
             self.comission = value
         elif parameter == "address":
             self.address = value
-        elif parameter == "jobtype":
-            self.jobtype = value
+        elif parameter == "paymethod":
+            self.payment.paymethod = value
+        elif parameter == "salary_h":
+            self.salary_h = value
+        elif parameter == "comission":
+            self.comission = value
         return
 
 

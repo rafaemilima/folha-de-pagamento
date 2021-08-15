@@ -144,17 +144,19 @@ def cartao(empresa):
                 print("ID inválido")
                 identificador = str(input("ID do funcionário: "))
                 e = Employee.getEmployeeByID(empresa, identificador)
+            if e.jobtype != "H":
+                print("O funcionário informado não é horista!")
 
-            e = Employee.getEmployeeByID(empresa, identificador)
-            h = int(input("1 - Início de expediente\n2 - Final de expediente\n"))
-            if e and h == 1:
-                inicio = int(input("Hora de início: "))
-                e.punchTheClockIn(inicio)
-                action = Action(empresa.actions, e, "clockin", value=inicio)
-            elif e and h == 2:
-                final = int(input("Hora de encerramento: "))
-                e.punchTheClockOut(final, e.workstarthour)
-                action = Action(empresa.actions, e, "clockout", value=[e.workstarthour, final])
+            else:
+                h = int(input("1 - Início de expediente\n2 - Final de expediente\n"))
+                if h == 1:
+                    inicio = int(input("Hora de início: "))
+                    e.punchTheClockIn(inicio)
+                    action = Action(empresa.actions, e, "clockin", value=inicio)
+                elif h == 2:
+                    final = int(input("Hora de encerramento: "))
+                    e.punchTheClockOut(final, e.workstarthour)
+                    action = Action(empresa.actions, e, "clockout", value=[e.workstarthour, final])
 
         elif n == "u":
             empresa.actions.undoRedo(empresa, False)
@@ -204,14 +206,17 @@ def funcionario(empresa):
             e = Employee.getEmployeeByID(empresa, identificador)
             copy = e
             if e:
-                aux = ["name", "salary", "syndicate", "address", "jobtype", "paymethod"]
+                aux = ["name", "salary", "syndicate", "address", "paymethod", "salary_h", "comission"]
                 print("Digite o atributo que você deseja modificar:")
-                a = int(input("|1 - name; 2 - stand salary; 3 - syndicate association; 4 - address;\n|5 - jobtype;"
-                              "6 - pay method; 7 - hourly salary; 8 - comission percent\n"))
-                old = e.getAttribute(aux[a-1])
-                valor = input("Digite o novo valor para o atributo especificado: ")
-                new_action = Action(empresa.actions, copy, "update", value=old, attribute=aux[a-1])
-                e.update(aux[a-1], valor)
+                a = int(input("|1 - nome; 2 - salário fixo; 3 - associação sindical; 4 - endereço;\n"
+                              "|5 - pay method; 6 - salário por hora; 7 - comissão\n"))
+                if e.jobtype != "H" and a == 6 or e.jobtype != "C" and a == 7:
+                    print("Atributo especificado não é compatível com o tipo de funcionário")
+                else:
+                    old = e.getAttribute(aux[a-1])
+                    valor = input("Digite o novo valor para o atributo especificado: ")
+                    new_action = Action(empresa.actions, copy, "update", value=old, attribute=aux[a-1])
+                    e.update(aux[a-1], valor)
 
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
