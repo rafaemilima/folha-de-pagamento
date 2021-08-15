@@ -4,7 +4,11 @@ import datetime as dt
 
 def sindicato_func(empresa):
     while True:
-        n = input("1 - Definir taxa sindical geral\n2 - Definir taxa sindical adicional\n0 - Retornar\n\n"
+        print("-----------------------------------------")
+        print("----F-O-L-H-A--D-E--P-A-G-A-M-E-N-T-O----")
+        print("-----------------------------------------\n")
+        print("---SINDICATO---")
+        n = input("|1| Definir taxa sindical geral\n|2| Definir taxa sindical de serviço adicional\n|0| Retornar\n\n"
                       "undo(u) | redo(r)\n")
 
         if n == "0":
@@ -72,7 +76,11 @@ def adicionar_func(empresa):
 
 def venda(empresa):
     while True:
-        n = input("1 - Registrar uma nova venda\n2 - Ver total de vendas\n0 - Retornar\n\nundo(u) | redo(r)\n")
+        print("-----------------------------------------")
+        print("----F-O-L-H-A--D-E--P-A-G-A-M-E-N-T-O----")
+        print("-----------------------------------------\n")
+        print("---VENDAS---")
+        n = input("|1| Registrar uma nova venda\n|2| Ver total de vendas\n|0| Retornar\n\nundo(u) | redo(r)\n")
         if n == "0":
             empresa.cleanStacks()
             return
@@ -102,7 +110,11 @@ def venda(empresa):
 
 def cartao(empresa):
     while True:
-        n = input("1 - Adicionar cartão de ponto\n2 - Bater ponto\n0 - Retornar\n\nundo(u) | redo(r)\n")
+        print("-----------------------------------------")
+        print("----F-O-L-H-A--D-E--P-A-G-A-M-E-N-T-O----")
+        print("-----------------------------------------\n")
+        print("---CARTÃO DE PONTO---")
+        n = input("|1| Adicionar cartão de ponto\n|2| Bater ponto\n|0| Retornar\n\nundo(u) | redo(r)\n")
 
         if n == "0":
             empresa.cleanStacks()
@@ -167,10 +179,14 @@ def cartao(empresa):
 
 def funcionario(empresa):
     while True:
-        n = (input("1 - Adicionar um novo funcionário\n2 - Remover um funcionário registrado\n3 - Dados do "
-                   "funcionário\n4 - Alterar informações de um funcionário\n5 - Alterar afiliação do funcionário\n"
-                   "6 - Escolher nova Agenda de Pagamento\n7 -  Mostrar todos os funcionários\n"
-                   "0 - Retornar\n\nundo(u) | redo(r)\n"))
+        print("-----------------------------------------")
+        print("----F-O-L-H-A--D-E--P-A-G-A-M-E-N-T-O----")
+        print("-----------------------------------------\n")
+        print("---FUNCIONÁRIOS---")
+        n = (input("|1| Adicionar um novo funcionário\n|2| Remover um funcionário registrado\n|3| Dados do "
+                   "funcionário\n|4| Alterar informações de um funcionário\n|5| Alterar tipo de afiliação do "
+                   "funcionário\n|6| Escolher nova Agenda de Pagamento\n|7|  Mostrar todos os funcionários\n"
+                   "|0| Retornar\n\nundo(u) | redo(r)\n"))
 
         if n == "0":
             empresa.cleanStacks()
@@ -349,10 +365,14 @@ def funcionario(empresa):
 
 
 def pagamentos(empresa):
+    print("-----------------------------------------")
+    print("----F-O-L-H-A--D-E--P-A-G-A-M-E-N-T-O----")
+    print("-----------------------------------------\n")
+    print("---PAGAMENTOS---")
     d = dt.date.today()
 
-    n = int(input("1 - Fazer pagamentos para o dia de hoje\n2 - Fazer pagamentos para os próximos dias\n"
-                  "3 - Criar uma nova agenda de pagamento\n0 - Retornar\n"))
+    n = int(input("|1| Fazer pagamentos para o dia de hoje\n|2| Fazer pagamentos para os próximos dias\n"
+                  "|3| Criar uma nova agenda de pagamento\n|0| Retornar\n"))
     if n == 0:
         return
     elif n == 1:
@@ -402,8 +422,12 @@ def pagamentos(empresa):
 
 def main(empresa):
     while True:
-        n = int(input("1 - Funcionario\n2 - Cartão de ponto\n3 - Resultado de venda\n4 - Sindicato\n5 - Pagamentos"
-                      "\n0 - Sair\n"))
+        print("-----------------------------------------")
+        print("----F-O-L-H-A--D-E--P-A-G-A-M-E-N-T-O----")
+        print("-----------------------------------------\n")
+        print("---MENU PRINCIPAL---")
+        n = int(input("|1| Funcionario\n|2| Cartão de ponto\n|3| Resultado de venda\n|4| Sindicato\n|5| Pagamentos"
+                      "\n|0| Sair\n"))
         if n == 0:
             break
         elif n == 1:
