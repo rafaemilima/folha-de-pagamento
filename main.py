@@ -56,17 +56,14 @@ def adicionar_func(empresa):
     if(tipo == "H"):
         salario_h = float(input("Salario por hora: "))
         e1 = Hourly(empresa, nome, endereco, tipo, 0, sindicado, salario_h, metodopagamento)
-        c.payagendas[0].employees.append(e1)
     elif(tipo == "C"):
         salario = float(input("Salario mensal: "))
         comissao = float(input("Taxa de comissão (valor decimal):"))
         e1 = Commissioned(empresa, nome, endereco, tipo, salary=salario, issyndicate=sindicado,
                           comission_percent=comissao, paymethod=metodopagamento)
-        c.payagendas[1].employees.append(e1)
     elif(tipo == "S"):
         salario = float(input("Salario mensal: "))
         e1 = Employee(empresa, nome, endereco, tipo, salario, sindicado, 0, 0, paymethod=metodopagamento)
-        c.payagendas[2].employees.append(e1)
     else:
         print("erro")
 
@@ -148,8 +145,9 @@ def cartao(empresa):
 def funcionario(empresa):
     while True:
         n = (input("1 - Adicionar um novo funcionário\n2 - Remover um funcionário registrado\n3 - Dados do "
-                      "funcionário\n4 - Alterar informações de um funcionário\n5 - Escolher nova Agenda de Pagamento\n"
-                      "6 - Mostrar todos os funcionários\n0 - Retornar\n\nundo(u) | redo(r)\n"))
+                   "funcionário\n4 - Alterar informações de um funcionário\n5 - Alterar afiliação do funcionário\n"
+                   "6 - Escolher nova Agenda de Pagamento\n7 -  Mostrar todos os funcionários\n"
+                   "0 - Retornar\n\nundo(u) | redo(r)\n"))
 
         if n == "0":
             empresa.cleanStacks()
@@ -198,6 +196,51 @@ def funcionario(empresa):
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
 
         elif n == "5":
+            identificador = str(input("ID do funcionário: "))
+            e = Employee.getEmployeeByID(empresa, identificador)
+            aux3 = {"H": "Horista", "S": "Assalariado", "C": "Comissionado"}
+            if e:
+                print(f"O tipo atual do funcionário é: {aux3[e.jobtype]}")
+                x = input("Realmente deseja alterar o tipo de afiliação trabalhista do funcionário? (s/n)\n")
+                if x == "s":
+                    aux3.pop(e.jobtype)
+                    print(f"Informe o novo tipo que deseja para o funcionário {e.id} ou o valor zero para cancelar a"
+                          f"operação:")
+                    for i in aux3.keys():
+                        print(f"({i}):{aux3[i]}")
+                    x = input("")
+                    while x not in aux3.keys():
+                        if x == "0":
+                            break
+                        print("Tipo inválido!")
+                        x = input("Informe um tipo válido para continuar ou 0 para cancelar a operação: ")
+                    if x == "0":
+                        break
+                    elif x == "C":
+                        print("Para concluir a migração é necessário que informe alguns valores:")
+                        salary = float(input("Digite o seu novo salário: "))
+                        comission = float(input("Digite sua taxa de comissão em decimais: "))
+                        e.remove(empresa, e.id)
+                        new = Commissioned(empresa, e.name, e.address, x, id= e.id, salary=salary,
+                                           issyndicate=e.issyndicate, comission_percent=comission,
+                                           paymethod=e.payment.paymethod)
+
+                    elif x == "H":
+                        print("Para concluir a migração é necessário que informe alguns valores:")
+                        salary_h = float(input("Digite o seu salário horário: "))
+                        e.remove(empresa, e.id)
+                        new = Hourly(empresa, e.name, e.address, x, 0, e.issyndicate, salary_h,
+                                     paymethod = e.payment.paymethod, id=e.id)
+
+                    elif x == "S":
+                        print("Para concluir a migração é necessário que informe alguns valores:")
+                        salary = float(input("Digite o seu novo salário: "))
+                        e.remove(empresa, e.id)
+                        new = Employee(empresa, e.name, e.address, x, salary, e.issyndicate, 0, 0,
+                                      paymethod=e.payment.paymethod, id=e.id)
+                    print("Afiliação do funcionário atualizada!")
+
+        elif n == "6":
             identificador = str(input("ID do funcionário: "))
             e = Employee.getEmployeeByID(empresa, identificador)
             aux1 = ["y", "n"]
@@ -264,9 +307,9 @@ def funcionario(empresa):
             else:
                 print("ID inválido. Cerfique-se que o funcionário está no sistema.")
 
-        elif n == "6":
+        elif n == "7":
             for employee in empresa.employees:
-                print(f"Nome: {employee.name} | ID: {employee.id}")
+                print(f"Nome: {employee.name} | ID: {employee.id} | Afiliação: {employee.jobtype}")
 
         elif n == "u":
             empresa.actions.undoRedo(empresa, False)
@@ -347,10 +390,7 @@ def main(empresa):
 
 c = Company()
 em1 = Hourly(c, "Rafa", "AB", "H", 0, "y", 10, paymethod="cheque")
-c.payagendas[0].employees.append(em1)
 em2 = Commissioned(c, "Rick", "MCZ", "C", 100, "n", 0.5, paymethod="cartão")
-c.payagendas[1].employees.append(em2)
 em3 = Employee(c, "Jão", "CA", "S", 100, "y", 0, 0, paymethod= "boleto")
 
-c.payagendas[2].employees.append(em3)
 main(c)

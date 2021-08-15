@@ -28,6 +28,8 @@ class Actions:
                 action.ogemployee.update(action.attribute, action.attrvalue)
                 action.attrvalue = old
                 print(action.attrvalue)
+            elif action.type == "updatetype":
+                pass
             elif action.type == "generaltaxes":
                 old = company.syndicate.taxes
                 company.syndicate.taxes = action.attrvalue
@@ -237,6 +239,9 @@ class Employee:
             self.issyndicate = False
         company.employees.append(self)
 
+        if self.jobtype == "S":
+            company.payagendas[2].employees.append(self)
+
 
     def addEmployee(self, company, name, address, jobtype, salary, issyndicate, salary_h, comission, id = None):
         if self.id:
@@ -318,6 +323,10 @@ class Employee:
 
     @staticmethod
     def remove(company, s_id):
+        e = Employee.getEmployeeByID(company, s_id)
+        for agenda in company.payagendas:
+            if e in agenda.employees:
+                agenda.employees.remove(e)
         for i in company.employees:
             if i.id == int(s_id):
                 company.employees.remove(i)
@@ -343,14 +352,15 @@ class Employee:
 
 class Hourly(Employee):
     def __init__(self, company, name = None, address = None, jobtype = None, salary = None, issyndicate = False,
-                 salary_h = None, day = 1, paymethod = None):
-        super().__init__(company, name, address, jobtype, salary, issyndicate, salary_h, paymethod=paymethod)
+                 salary_h = None, day = 1, paymethod = None, id = None):
+        super().__init__(company, name, address, jobtype, salary, issyndicate, salary_h, paymethod=paymethod, id=id)
         self.card = PointCard(self.id, self)
         self.salary_h = salary_h
         self.hours_amount = 0
         self.day = day
         self.workstarthour = 0
         self.workendhour = 0
+        company.payagendas[0].employees.append(self)
 
     def resetPaymentH(self):
         self.hours_amount = 0
@@ -382,11 +392,13 @@ class Hourly(Employee):
 
 class Commissioned(Employee):
     def __init__(self, company, name = None, address = None, jobtype = None, salary = None, issyndicate = False,
-                 comission_percent = 0, paymethod = None):
-        super().__init__(company, name, address, jobtype, salary, issyndicate, comission_percent, paymethod=paymethod)
+                 comission_percent = 0, paymethod = None, id = None):
+        super().__init__(company, name, address, jobtype, salary, issyndicate, comission_percent, paymethod=paymethod,
+                         id = id)
         self.comission_amount = 0
         self.sales = []
         self.comission_percent = comission_percent
+        company.payagendas[1].employees.append(self)
 
     def addSale(self, date, value):
         self.sales.append(Sales(date, value))
