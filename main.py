@@ -109,12 +109,33 @@ def cartao(empresa):
             return
 
         elif n == "1":
+            print("Essa operação adiciona um cartão de ponto a um funcionário com uma afiliação que não seja horista.")
+            print("Informe o ID do funcionário para continuar ou 0 para cancelar a operação")
             identificador = str(input("ID do funcionário: "))
-            card = PointCard()
-            salario = float(input("Salário horário: "))
-            card.addCard(empresa, identificador, salario)
-            print(card.cardid)
-            print(card.employee.name, card.employee.id)
+            e = Employee.getEmployeeByID(empresa, identificador)
+            while not e:
+                identificador = str(input("Informe um novo ID ou digite 0 para cancelar a operação: "))
+                e = Employee.getEmployeeByID(empresa, identificador)
+                if identificador == "0":
+                    print("Operação cancelada")
+                    e = None
+                    break
+
+            if e:
+                if e.jobtype == "H":
+                    print("Funcionários horistas já possuem um cartão associado!")
+                else:
+                    y = input("Se você prosseguir com a operação, o tipo do funcionário será atualizado para Horista."
+                              "Deseja prosseguir? (s/n)\n")
+                    if y == "s":
+                        aindex = empresa.getPayagendaIndex(e)
+                        print("Para concluir a migração é necessário que informe alguns valores:")
+                        salary_h = float(input("Digite o seu salário horário: "))
+                        e.remove(empresa, e.id)
+                        new = Hourly(empresa, e.name, e.address, "H", 0, e.issyndicate, salary_h,
+                                     paymethod=e.payment.paymethod, id=e.id)
+                        print("Novo cartão de ponto criado!")
+                        action = Action(empresa.actions, new, "updatetype", [e, aindex])
 
         elif n == "2":
             identificador = str(input("ID do funcionário: "))
@@ -214,8 +235,11 @@ def funcionario(empresa):
                             break
                         print("Tipo inválido!")
                         x = input("Informe um tipo válido para continuar ou 0 para cancelar a operação: ")
+                    new = None
+                    aindex = empresa.getPayagendaIndex(e)
                     if x == "0":
                         break
+
                     elif x == "C":
                         print("Para concluir a migração é necessário que informe alguns valores:")
                         salary = float(input("Digite o seu novo salário: "))
@@ -238,6 +262,7 @@ def funcionario(empresa):
                         e.remove(empresa, e.id)
                         new = Employee(empresa, e.name, e.address, x, salary, e.issyndicate, 0, 0,
                                       paymethod=e.payment.paymethod, id=e.id)
+                    action = Action(empresa.actions, new, "updatetype", [e, aindex])
                     print("Afiliação do funcionário atualizada!")
 
         elif n == "6":

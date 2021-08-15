@@ -29,7 +29,15 @@ class Actions:
                 action.attrvalue = old
                 print(action.attrvalue)
             elif action.type == "updatetype":
-                pass
+                if redo:
+                    aux = {"H": 0, "S": 2,"C": 1}
+                    company.payagendas[aux[action.ogemployee.jobtype]].employees.append(action.ogemployee)
+                    Employee.remove(company, action.attrvalue[0].id)
+                    company.employees.append(action.ogemployee)
+                else:
+                    Employee.remove(company, action.ogemployee.id)
+                    company.employees.append(action.attrvalue[0])
+                    company.payagendas[action.attrvalue[1]].employees.append(action.attrvalue[0])
             elif action.type == "generaltaxes":
                 old = company.syndicate.taxes
                 company.syndicate.taxes = action.attrvalue
@@ -72,8 +80,8 @@ class Actions:
                 self.undostack.append(action)
             else:
                 self.redostack.append(action)
-        print(f"undo feito tamanho da pilha de undo: {len(self.undostack)}")
-        print(f"tamanho da pilha de redo: {len(self.redostack)}")
+            print(f"tamanho da pilha de undo: {len(self.undostack)}")
+            print(f"tamanho da pilha de redo: {len(self.redostack)}")
 
 
 class Action:
@@ -94,6 +102,15 @@ class Company:
         self.standardPayagendas()
         self.actions = Actions()
         self.syndicate = Syindicate(0,  1)
+
+    def getPayagendaIndex(self, employee):
+        i = 0
+        for payagenda in self.payagendas:
+            if employee in payagenda.employees:
+                return i
+            i += 1
+        return - 1
+
 
     def cleanStacks(self):
         self.actions.undostack = []
