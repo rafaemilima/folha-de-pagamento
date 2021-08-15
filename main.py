@@ -135,8 +135,8 @@ def cartao(empresa):
                 action = Action(empresa.actions, e, "clockin", value=inicio)
             elif e and h == 2:
                 final = int(input("Hora de encerramento: "))
-                e.punchTheClockOut(final)
-                action = Action(empresa.actions, e, "clockout", value=final)
+                e.punchTheClockOut(final, e.workstarthour)
+                action = Action(empresa.actions, e, "clockout", value=[e.workstarthour, final])
 
         elif n == "u":
             empresa.actions.undoRedo(empresa, False)

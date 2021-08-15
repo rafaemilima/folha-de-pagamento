@@ -50,17 +50,17 @@ class Actions:
                     print(len(action.ogemployee.sales))
             elif action.type == "clockin":
                 new = action.attrvalue
+                action.ogemployee.workstarthour = 0
                 if redo:
-                    new = new * (-1)
-                action.ogemployee.workstarthour -= new
+                    action.ogemployee.workstarthour += new
                 print(action.ogemployee.workstarthour)
             elif action.type == "clockout":
                 employee = action.ogemployee
                 if redo:
-                    employee.punchTheClockOut(action.attrvalue)
+                    employee.punchTheClockOut(action.attrvalue[1], action.attrvalue[0])
                 else:
-                    employee.workendhour = action.attrvalue
-                    work_day = employee.workendhour - employee.workstarthour
+                    employee.workendhour = int(action.attrvalue[1])
+                    work_day = employee.workendhour - int(action.attrvalue[0])
                     employee.hours_amount -= work_day
                     employee.payment.value -= employee.calculateSalary(work_day)
                 print(employee.hours_amount)
@@ -361,11 +361,13 @@ class Hourly(Employee):
     def punchTheClockIn(self, hour):
         self.workstarthour = hour
 
-    def punchTheClockOut(self, hour):
-        self.workendhour = hour
+    def punchTheClockOut(self, fhour, shour):
+        self.workendhour = fhour
+        self.workstarthour = shour
         work_day = self.workendhour - self.workstarthour
         self.hours_amount = self.hours_amount + work_day
         self.payment.value += self.calculateSalary(work_day)
+
 
     def calculateSalary(self, work_day):
         total = 0
