@@ -19,15 +19,17 @@ class Actions:
         if action:
             if action.type == "remove":
                 company.employees.append(action.ogemployee)
+                company.payagendas[action.attrvalue].employees.append(action.ogemployee)
                 action.type = "create"
             elif action.type == "create":
+                action.attrvalue = company.getPayagendaIndex(action.ogemployee)
                 action.ogemployee.remove(company, action.ogemployee.id)
                 action.type = "remove"
             elif action.type == "update":
                 old = action.ogemployee.getAttribute(action.attribute)
                 action.ogemployee.update(action.attribute, action.attrvalue)
                 action.attrvalue = old
-                print(action.attrvalue)
+                # print(action.attrvalue)
             elif action.type == "updatetype":
                 if redo:
                     aux = {"H": 0, "S": 2,"C": 1}
@@ -43,12 +45,12 @@ class Actions:
                 company.syndicate.taxes = action.attrvalue
                 action.attrvalue = old
             elif action.type == "aditionaltaxes":
-                print(action.ogemployee.aditional_taxes)
+                # print(action.ogemployee.aditional_taxes)
                 new = action.attrvalue
                 if redo:
                     new = new * (-1)
                 action.ogemployee.aditional_taxes -= new
-                print(action.ogemployee.aditional_taxes)
+                # print(action.ogemployee.aditional_taxes)
             elif action.type == "sale":
                 if redo:
                     action.ogemployee.addSale(action.attrvalue[0], action.attrvalue[1])
@@ -63,7 +65,7 @@ class Actions:
                 action.ogemployee.workstarthour = 0
                 if redo:
                     action.ogemployee.workstarthour += new
-                print(action.ogemployee.workstarthour)
+                # print(action.ogemployee.workstarthour)
             elif action.type == "clockout":
                 employee = action.ogemployee
                 if redo:
@@ -73,15 +75,17 @@ class Actions:
                     work_day = employee.workendhour - int(action.attrvalue[0])
                     employee.hours_amount -= work_day
                     employee.payment.value -= employee.calculateSalary(work_day)
-                print(employee.hours_amount)
-                print(employee.payment.value)
+                # print(employee.hours_amount)
+                # print(employee.payment.value)
 
             if redo:
                 self.undostack.append(action)
+                print(f"Ação refeita")
             else:
                 self.redostack.append(action)
-            print(f"tamanho da pilha de undo: {len(self.undostack)}")
-            print(f"tamanho da pilha de redo: {len(self.redostack)}")
+                print(f"Ação desfeita")
+            # print(f"tamanho da pilha de undo: {len(self.undostack)}")
+            # print(f"tamanho da pilha de redo: {len(self.redostack)}")
 
 
 class Action:
