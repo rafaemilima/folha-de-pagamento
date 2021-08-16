@@ -8,8 +8,8 @@ def sindicato_func(empresa):
         print("----F-O-L-H-A--D-E--P-A-G-A-M-E-N-T-O----")
         print("-----------------------------------------\n")
         print("---SINDICATO---")
-        n = input("|1| Definir taxa sindical geral\n|2| Definir taxa sindical de serviço adicional\n|0| Retornar\n\n"
-                      "undo(u) | redo(r)\n")
+        n = input("|1| Definir taxa sindical geral\n|2| Definir taxa sindical de serviço adicional\n|3| Ver taxa "
+                  "sindical geral\n|0| Retornar\n\nundo(u) | redo(r)\n")
 
         if n == "0":
             empresa.cleanStacks()
@@ -29,6 +29,9 @@ def sindicato_func(empresa):
             if e:
                 action = Action(empresa.actions, e, "aditionaltaxes", taxa_ad)
                 empresa.syndicate.plusAditionalTaxes(empresa, identificador, taxa_ad)
+
+        elif n == "3":
+            print(f"Taxa sindical geral atual:{empresa.syndicate.taxes}")
 
         elif n == "u":
             empresa.actions.undoRedo(empresa, False)
@@ -478,7 +481,7 @@ def main(empresa):
 
 c = Company()
 em1 = Hourly(c, "Rafael", "Maceió", "H", 0, "y", salary_h=10, paymethod="Depósito bancário")
-em2 = Commissioned(c, "Antônio", "Arapiraca", "C", 100, "n", 0.5, paymethod="Cheque em mãos")
-em3 = Employee(c, "José", "Recife", "S", 100, "y", 0, 0, paymethod= "Cheque no correio")
+em2 = Commissioned(c, "Carlos", "Arapiraca", "C", 100, "n", 0.5, paymethod="Cheque em mãos")
+em3 = Employee(c, "João", "Recife", "S", 100, "y", 0, 0, paymethod= "Cheque no correio")
 
 main(c)

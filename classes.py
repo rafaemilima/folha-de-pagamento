@@ -20,15 +20,18 @@ class Actions:
             if action.type == "remove":
                 company.employees.append(action.ogemployee)
                 company.payagendas[action.attrvalue].employees.append(action.ogemployee)
+                print("Funcionário cadastrado no sistema!")
                 action.type = "create"
             elif action.type == "create":
                 action.attrvalue = company.getPayagendaIndex(action.ogemployee)
                 action.ogemployee.remove(company, action.ogemployee.id)
                 action.type = "remove"
+                print("Funcionário removido do sistema!")
             elif action.type == "update":
                 old = action.ogemployee.getAttribute(action.attribute)
                 action.ogemployee.update(action.attribute, action.attrvalue)
                 action.attrvalue = old
+                print("Atributo resetado.")
                 # print(action.attrvalue)
             elif action.type == "updatetype":
                 if redo:
@@ -44,12 +47,14 @@ class Actions:
                 old = company.syndicate.taxes
                 company.syndicate.taxes = action.attrvalue
                 action.attrvalue = old
+                print("Taxa geral resetada.")
             elif action.type == "aditionaltaxes":
                 # print(action.ogemployee.aditional_taxes)
                 new = action.attrvalue
                 if redo:
                     new = new * (-1)
                 action.ogemployee.aditional_taxes -= new
+                print("Taxa adicional resetada")
                 # print(action.ogemployee.aditional_taxes)
             elif action.type == "sale":
                 if redo:
@@ -65,6 +70,7 @@ class Actions:
                 action.ogemployee.workstarthour = 0
                 if redo:
                     action.ogemployee.workstarthour += new
+                print("Horário de início de expediente resetado")
                 # print(action.ogemployee.workstarthour)
             elif action.type == "clockout":
                 employee = action.ogemployee
@@ -75,13 +81,16 @@ class Actions:
                     work_day = employee.workendhour - int(action.attrvalue[0])
                     employee.hours_amount -= work_day
                     employee.payment.value -= employee.calculateSalary(work_day)
+                print("Horário de final de expediente resetado")
                 # print(employee.hours_amount)
                 # print(employee.payment.value)
             elif action.type == "paymentoday":
                 d = dt.date.today()
                 if redo:
+                    print("Pagamentos do dia refeitos")
                     company.makePayments([d.day, d.month, d.year], company.syndicate.taxes)
                 else:
+                    print("Pagamentos do dia desfeitos")
                     for agenda in action.attrvalue:
                         agenda.nextpayday = [d.day, d.month, d.year]
 
