@@ -32,7 +32,7 @@ class Actions:
                 # print(action.attrvalue)
             elif action.type == "updatetype":
                 if redo:
-                    aux = {"H": 0, "S": 2,"C": 1}
+                    aux = {"H": 0, "S": 2, "C": 1}
                     company.payagendas[aux[action.ogemployee.jobtype]].employees.append(action.ogemployee)
                     Employee.remove(company, action.attrvalue[0].id)
                     company.employees.append(action.ogemployee)
@@ -77,6 +77,13 @@ class Actions:
                     employee.payment.value -= employee.calculateSalary(work_day)
                 # print(employee.hours_amount)
                 # print(employee.payment.value)
+            elif action.type == "paymentoday":
+                d = dt.date.today()
+                if redo:
+                    company.makePayments([d.day, d.month, d.year], company.syndicate.taxes)
+                else:
+                    for agenda in action.attrvalue:
+                        agenda.nextpayday = [d.day, d.month, d.year]
 
             if redo:
                 self.undostack.append(action)
@@ -137,7 +144,8 @@ class Company:
         self.payagendas.append(bimonthly)
         self.payagendas.append(monthly)
 
-    def addPayagenda(self, wday, type, period):
+    @staticmethod
+    def addPayagenda(wday, type, period):
         newagenda = Payagenda()
 
     def returnPayagenda(self, searched_employee):
@@ -154,15 +162,25 @@ class Company:
             if today == payagenda.nextpayday:
                 for employee in payagenda.employees:
                     employee.getSalary()
+                    total = employee.payment.value
                     if employee.issyndicate:
-                        employee.payment.value -= general_taxes
+                        total = employee.payment.value - general_taxes
                     print("\n-------------NEW PAYMENT-------------")
                     print("Employee Informations")
-                    print(f"ID:{employee.id}")
-                    print(f"Name:{employee.name}")
+                    print("---------------------------------------")
+                    print(f"ID: {employee.id}")
+                    print(f"Name: {employee.name}")
+                    print("---------------------------------------")
                     print("Payment Details")
-                    print(f"Value:{employee.payment.value}")
-                    print(f"Pay Method:{employee.payment.paymethod}")
+                    print("---------------------------------------")
+                    print(f"Value: {employee.payment.value}")
+                    if employee.issyndicate:
+                        print(f"General syndicate taxes: {self.syndicate.taxes}")
+                    else:
+                        print(f"General syndicate taxes: 0")
+                    print(f"Aditional syndicate taxes: {employee.aditional_taxes}")
+                    print(f"Total: {total}")
+                    print(f"Pay Method: {employee.payment.paymethod}")
                     print(f"Data: {today[0]}/{today[1]}/{today[2]}")
                     print("--------------------------------------\n")
                     employee.resetPaymentS()
@@ -193,9 +211,12 @@ class Payagenda:
     def getNextPayday(self, month, today):
         d = dt.date(today[2], today[1], today[0])
         if self.type == "W":
-            d += dt.timedelta(1)
-            while d.weekday() != self.day:
-                d += dt.timedelta(1)
+            if len(self.nextpayday) == 0:
+                while d.weekday() != self.day:
+                    d += dt.timedelta(1)
+            else:
+                d += dt.timedelta(7)
+
             list = [d.day, d.month, d.year]
             self.nextpayday = list
 
@@ -216,9 +237,11 @@ class Payagenda:
             self.nextpayday = list
 
         elif self.type == "B":
-            d += dt.timedelta(8)
-            while d.weekday() != self.day:
-                d += dt.timedelta(1)
+            if len(self.nextpayday) == 0:
+                while d.weekday() != self.day:
+                    d += dt.timedelta(1)
+            else:
+                d += dt.timedelta(14)
             list = [d.day, d.month, d.year]
             self.nextpayday = list
 
@@ -293,8 +316,8 @@ class Employee:
         print("###################################")
         print(f"ID do funcionário: {self.id}")
         print(f"Nome do funcionário: {self.name}")
-        print(f"Endereço:{self.address}")
-        print(f"Tipo de afiliação:{self.jobtype}")
+        print(f"Endereço: {self.address}")
+        print(f"Tipo de afiliação: {self.jobtype}")
         print(f"Salário fixo: {self.salary}")
         print(f"Salário Horário: {self.salary_h}")
         print(f"Taxa de Comissão: {self.comission}")
@@ -381,7 +404,8 @@ class Employee:
 class Hourly(Employee):
     def __init__(self, company, name = None, address = None, jobtype = None, salary = None, issyndicate = False,
                  salary_h = None, day = 1, paymethod = None, id = None):
-        super().__init__(company, name, address, jobtype, salary, issyndicate, salary_h, paymethod=paymethod, id=id)
+        super().__init__(company, name, address, jobtype, 0, issyndicate, salary_h=salary_h, paymethod=paymethod,
+                         id=id)
         self.card = PointCard(self.id, self)
         self.salary_h = salary_h
         self.hours_amount = 0

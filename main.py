@@ -1,4 +1,4 @@
-from classes import Company, Employee, Hourly, Commissioned, PointCard, Payagenda, Action
+from classes import Company, Employee, Hourly, Commissioned, Payagenda, Action
 import datetime as dt
 
 
@@ -375,23 +375,31 @@ def pagamentos(empresa):
         print("---PAGAMENTOS---")
         d = dt.date.today()
 
-        n = int(input("|1| Fazer pagamentos para o dia de hoje\n|2| Fazer pagamentos para os próximos dias\n"
-                      "|3| Criar uma nova agenda de pagamento\n|4| Exibir agendas de pagamento\n|0| Retornar\n"))
-        if n == 0:
+        n = input("|1| Fazer pagamentos para o dia de hoje\n|2| Fazer pagamentos para os próximos dias\n"
+                      "|3| Criar uma nova agenda de pagamento\n|4| Exibir agendas de pagamento\n|0| Retornar\n\n"
+                      "undo(u) | redo(r)\n")
+        if n == "0":
+
             return
-        elif n == 1:
+        elif n == "1":
+            list = []
+            for agenda in empresa.payagendas:
+                if agenda.nextpayday == [d.day, d.month, d.year]:
+                    list.append(agenda)
+
             empresa.makePayments([d.day, d.month, d.year], empresa.syndicate.taxes)
-        elif n == 2:
-            m = int(input(f"Defina a quantidade de dias a partir de hoje {d.day}/{d.month}/{d.year} ao qual deseja efetuar "
-                          f"o pagamento: "))
+            action = Action(empresa.actions, None, "paymentoday", list)
+        elif n == "2":
+            m = int(input(f"Defina a quantidade de dias a partir de hoje {d.day}/{d.month}/{d.year} "
+                          f"ao qual deseja efetuar o pagamento: "))
             for i in range(0, m):
                 empresa.makePayments([d.day, d.month, d.year], empresa.syndicate.taxes)
                 d += dt.timedelta(1)
-
-        elif n == 3:
+        elif n == "3":
             aux = ["B", "W", "M"]
             set = False
-            type = (input("Que tipo de agenda de pagamento você deseja criar?\nB - Bisemanal\nW - Semanal\nM - Mensal\n"))
+            type = (input("Que tipo de agenda de pagamento você deseja criar?\nB - Bisemanal\nW - Semanal\nM - "
+                          "Mensal\n"))
             if type not in aux:
                 print("Tipo inválido.")
             else:
@@ -422,11 +430,11 @@ def pagamentos(empresa):
                     if not set:
                         empresa.payagendas.append(new)
                         print("A nova agenda foi cadastrada!")
-        elif n == 4:
+        elif n == "4":
             x = 1
             periodos = {"beggining": "no início do mês", "middle": "no meio do mês", "end": "no último dia útil do mês"}
             tipos = {"W": "Semanal", "B": "Bissemanal", "M": "Mensal"}
-            bs = {"W": "semanalmente", "B":"bissemanalmente"}
+            bs = {"W": "semanalmente", "B": "bissemanalmente"}
             dias = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira"]
             for agenda in empresa.payagendas:
 
@@ -439,6 +447,11 @@ def pagamentos(empresa):
                     print(f"Os funcionários são pagos {bs[agenda.type]} na {dias[agenda.day]}")
                 print(f"Próximo dia de pagamento: {agenda.nextpayday[0]}/{agenda.nextpayday[1]}/{agenda.nextpayday[2]}")
                 x += 1
+        elif n == "u":
+            empresa.actions.undoRedo(empresa, False)
+
+        elif n == "r":
+            empresa.actions.undoRedo(empresa, True)
 
 
 def main(empresa):
@@ -447,7 +460,7 @@ def main(empresa):
         print("----F-O-L-H-A--D-E--P-A-G-A-M-E-N-T-O----")
         print("-----------------------------------------\n")
         print("---MENU PRINCIPAL---")
-        n = int(input("|1| Funcionario\n|2| Cartão de ponto\n|3| Resultado de venda\n|4| Sindicato\n|5| Pagamentos"
+        n = int(input("|1| Funcionário\n|2| Cartão de ponto\n|3| Resultado de venda\n|4| Sindicato\n|5| Pagamentos"
                       "\n|0| Sair\n"))
         if n == 0:
             break
@@ -464,7 +477,7 @@ def main(empresa):
 
 
 c = Company()
-em1 = Hourly(c, "Rafael", "Maceió", "H", 0, "y", 10, paymethod="Depósito bancário")
+em1 = Hourly(c, "Rafael", "Maceió", "H", 0, "y", salary_h=10, paymethod="Depósito bancário")
 em2 = Commissioned(c, "Antônio", "Arapiraca", "C", 100, "n", 0.5, paymethod="Cheque em mãos")
 em3 = Employee(c, "José", "Recife", "S", 100, "y", 0, 0, paymethod= "Cheque no correio")
 
