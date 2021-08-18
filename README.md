@@ -12,7 +12,15 @@ O projeto consiste em um sistema de folha de pagamento para uma dada empresa.
 
 ## Implementação
 
-O projeto está sendo feito na linguagem python utilizando conceitos de POO.
+O projeto está sendo feito na linguagem python utilizando conceitos de POO. Os conceitos de orientação à objetos, bem como as funcionalidades exigidas, estão sintetizadas em apenas dois arquivos: 
+* classes.py: Onde as classes, atributos e métodos estão definidos.
+* main.py: Onde as classes, atributos e métodos são manipulados através de interações com o usuário da aplicação
+
+<br>
+
+## Interface
+
+A interação entre o código e o usuário está sendo feita através de saídas formatadas no terminal do sistema.
 
 <br>
 
@@ -31,4 +39,4 @@ Algumas das funcionalidades já presentes no projeto são:
 * Rodar a folha de pagamento dentro de um período de tempo especificado;
 * Lançar uma nova agenda de pagamento diferente das 3 padrões;
 * Funcionário pode personalizar sua agenda de pagamento;
-* Funcionalidade de Undo e Redo nos menus de registro.
+* Funcionalidade de Undo e Redo nas funcionalidades.
